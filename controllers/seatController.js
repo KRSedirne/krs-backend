@@ -69,7 +69,7 @@ export const updateSeat = async (req, res) => {
         const response = await Seat.findOneAndUpdate({ id: seat.id }, seat, { new: true });
 
         if (!response) {
-            throw new Error("Punishment not found with this ID");
+            throw new Error("Seat not found with this ID");
         }
 
         return res.status(200).json({ response, message: `Seat Updated successfully ${req?.params?.id}` });

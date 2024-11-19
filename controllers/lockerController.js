@@ -69,7 +69,7 @@ export const deleteLocker=async(req,res)=>{
         const id=req.body.id;
         const deletedLocker=await Locker.findOneAndDelete({id});
         if(!deleteLocker){
-            return res.status(404).json({message:"Locker ca't found."});
+            return res.status(404).json({message:"Locker not found."});
         }
         res.status(200).json({message:"Locker deleted successfully",deleteLocker});
     }
