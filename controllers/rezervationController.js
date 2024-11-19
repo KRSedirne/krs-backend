@@ -5,6 +5,11 @@ import { generateId } from "../utils/idGenerator.js";
 export const getAllRezervations = async (req, res) => {
     try {
         const response = await Rezervation.find();
+
+        if (response.length === 0) {
+            throw new Error("Rezervations not found");
+        }
+
         return res.status(200).json({ response });
     } catch (error) {
         return res.status(404).json({ message: "Rezervations not found, something is gone wrong..." });
@@ -12,10 +17,15 @@ export const getAllRezervations = async (req, res) => {
 }
 
 // Get a rezervation
-export const getRezervation = async (req, res) => {
+export const getRezervationDetails = async (req, res) => {
     try {
         const id = req?.params?.id;
-        const response = await Rezervation.findById(id);
+        const response = await Rezervation.findOne({ id: id });
+
+        if (!response) {
+            throw new Error("Rezervation not found with this ID");
+        }
+
         return res.status(200).json({ response });
     } catch (error) {
         return res.status(404).json({ message: "Rezervation not found with this ID" });
@@ -29,7 +39,7 @@ export const createRezervation = async (req, res) => {
         const id = generateId();
         req.body.id = id;
 
-        const isIdExist = await Rezervation.findOne({ id: req?.body.id });
+        const isIdExist = await Rezervation.findOne({ id: id });
 
         if (isIdExist) {
             throw new Error(`Id already exist ${req?.body.id}`);
@@ -56,7 +66,12 @@ export const updateRezervation = async (req, res) => {
             ...req.body
         }
 
-        const response = await findByIdAndUpdate(rezervation.id, rezervation, { new: true });
+        const response = await Rezervation.findOneAndUpdate({ id: rezervation.id }, rezervation, { new: true });
+
+        if (!response) {
+            throw new Error("Rezervation not found");
+        }
+
         return res.status(200).json({ response, message: `Rezervation Updated successfully ${req?.params?.id}` });
     } catch (error) {
         return res.status(404).json({ message: "Rezervation not found" });
@@ -67,8 +82,8 @@ export const updateRezervation = async (req, res) => {
 export const deleteRezervation = async (req, res) => {
     try {
 
-        const rezervation = await Rezervation.findById(req?.params?.id);
-
+        const id = req?.params?.id;
+        const rezervation = await Rezervation.findOne({ id: id });
         await rezervation.deleteOne();
 
         return res.status(200).json({ message: `Rezervation deleted successfully ${req?.params?.id}` });

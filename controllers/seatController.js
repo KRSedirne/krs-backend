@@ -6,6 +6,10 @@ export const getAllSeats = async (req, res) => {
     try {
         const response = await Seat.find();
 
+        if (response.length === 0) {
+            throw new Error("Seats not found");
+        }
+
         return res.status(200).json({ response });
     } catch (error) {
         return res.status(404).json({ message: "Seats not found, something is gone wrong..." });
@@ -13,10 +17,15 @@ export const getAllSeats = async (req, res) => {
 }
 
 // Get a seat
-export const getSeat = async (req, res) => {
+export const getSeatDetails = async (req, res) => {
     try {
         const id = req?.params?.id;
-        const response = await Seat.findById(id);
+        const response = await Seat.findOne({ id: id });
+
+        if (!response) {
+            throw new Error("Seat not found with this ID");
+        }
+
         return res.status(200).json({ response });
     } catch (error) {
         return res.status(404).json({ message: "Seat not found with this ID" });
@@ -30,7 +39,7 @@ export const createSeat = async (req, res) => {
         const id = generateId();
         req.body.id = id;
 
-        const isIdExist = await Seat.findOne({ id: req?.body.id });
+        const isIdExist = await Seat.findOne({ id: id });
 
         if (isIdExist) {
             throw new Error(`Id already exist ${req?.body.id}`);
@@ -57,7 +66,11 @@ export const updateSeat = async (req, res) => {
             ...req.body
         }
 
-        const response = await Seat.findByIdAndUpdate(seat.id, seat, { new: true });
+        const response = await Seat.findOneAndUpdate({ id: seat.id }, seat, { new: true });
+
+        if (!response) {
+            throw new Error("Punishment not found with this ID");
+        }
 
         return res.status(200).json({ response, message: `Seat Updated successfully ${req?.params?.id}` });
     } catch (error) {
@@ -69,7 +82,8 @@ export const updateSeat = async (req, res) => {
 export const deleteSeat = async (req, res) => {
     try {
 
-        let seat = await Seat.findById(req?.params?.id);
+        const id = req?.params?.id;
+        let seat = await Seat.findOne({ id: id });
         await seat.deleteOne();
 
         return res.status(200).json({ message: `Seat deleted successfully ${req?.params?.id}` });
