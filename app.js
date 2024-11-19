@@ -6,6 +6,7 @@ import morgan from 'morgan';
 import seatRoutes from "./routes/seat.js";
 import rezervationRoutes from "./routes/rezervation.js";
 import punishmentRoutes from "./routes/punishment.js";
+import lockerRoutes from "./routes/lockerRoute.js";
 import swagger from "./configs/swagger.js";
 
 const app = express();
@@ -22,6 +23,7 @@ app.use(morgan("dev"));
 app.use("/api/v1", seatRoutes);
 app.use("/api/v1", rezervationRoutes);
 app.use("/api/v1", punishmentRoutes);
+app.use("/api/v1", lockerRoutes);
 
 const port = globalConfig.port || 5000;
 const server = app.listen(port, () => {
