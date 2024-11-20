@@ -90,7 +90,7 @@ export const reserveLocker=async(req,res)=>{
         }
         locker.isBooked=true;
         locker.user=user;
-        //await locker.save();
+        await locker.save();
         res.status(200).json({message:"Locker reserved by ${locker.user}",locker});
     }
     catch(e){
@@ -109,7 +109,7 @@ export const cancelLockerReservation=async(req,res)=>{
         }
         locker.isBooked=false;
         locker.user=null;
-        //await locker.save();
+        await locker.save();//for saving in the db
         res.status(200).json({message:"Locker reservation got cancelled.",locker});
     }
     catch(e){
