@@ -49,7 +49,7 @@ export const createLocker=async(req,res)=>{
 //update a locker
 export const updateLocker=async(req,res)=>{
         try{
-            const id=req.body.id;
+            const id=req.params.id;
             const updates=req.body;
              const updatedLocker=await Locker.findOneAndUpdate(id,updates,{
                 new:true,
@@ -66,7 +66,7 @@ export const updateLocker=async(req,res)=>{
 //delete a locker
 export const deleteLocker=async(req,res)=>{
     try{
-        const id=req.body.id;
+        const id=req.params.id;
         const deletedLocker=await Locker.findOneAndDelete({id});
         if(!deleteLocker){
             return res.status(404).json({message:"Locker not found."});
@@ -79,7 +79,7 @@ export const deleteLocker=async(req,res)=>{
 }
 export const reserveLocker=async(req,res)=>{
     try{
-        const id=req.body.id;
+        const id=req.params.id;
         const user=req.body.user;
         const locker=await Locker.findOne({id:id});
         if(!locker){
@@ -99,7 +99,7 @@ export const reserveLocker=async(req,res)=>{
 }
 export const cancelLockerReservation=async(req,res)=>{
     try{
-        const id=req.body.id;
+        const id=req.params.id;
         const locker=await Locker.findOne({id:id});
         if(!locker){
             return res.status(404).json({message:"Locker not Found"});
