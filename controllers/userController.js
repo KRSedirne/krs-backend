@@ -1,9 +1,9 @@
 import User from "../models/user.js"
-import {generatedId} from "../utils/idGenerator.js"
+import {generateId} from "../utils/idGenerator.js"
 
 export const createUser = async (req, res) => {
     try{
-        const userId = generatedId();
+        const userId = generateId();
 
         const existingUser = await User.findOne({email: req.body.email});
         if(existingUser){
@@ -12,7 +12,7 @@ export const createUser = async (req, res) => {
                 message: "User already exists"});
         }
         const newUser = await User.create({
-            userId,
+            id:userId,
             name: req.body.name,
             lastname: req.body.lastname,
             email: req.body.email,  
@@ -77,14 +77,14 @@ export const updateUser = async (req, res) => {
 
 export const deleteUser = async (req, res) => {
     try{
-        const user = await User.findOne({userId: req.params.userId});
+        const user = await User.findOne({id: req.params.id});
         if(!user){
             return res.status(404).json({
                 succes: false,
                 message: "User not found"
             });
         }
-        await User.findOneAndDelete({userId: req.params.userId});
+        await user.deleteOne();
         res.status(200).json({
             succes: true,
             message: "User deleted successfully"
@@ -99,7 +99,7 @@ export const deleteUser = async (req, res) => {
 
 export const getUser = async (req, res) => {
     try{
-        const user = await User.findOne({userId: req.params.userId, isActivated: true});
+        const user = await User.findOne({id: req?.params?.id});
         if(!user){
             return res.status(404).json({
                 succes: false,
@@ -120,7 +120,7 @@ export const getUser = async (req, res) => {
 
 export const getAllUsers = async (req, res) => {
     try{
-        const users = await User.find({isActivated: true});
+        const users = await User.find();
         res.status(200).json({
             succes: true,
             data: users
