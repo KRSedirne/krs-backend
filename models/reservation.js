@@ -15,7 +15,7 @@ const reservationSchema = new mongoose.Schema({
         ref: "Seat",
         required: [true, "Seat is required"]
     },
-    rezervationDate: {
+    reservationDate: {
         type: Date,
         required: [true, "Rezervation Date is required"]
     },

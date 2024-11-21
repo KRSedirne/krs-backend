@@ -9,7 +9,7 @@ const seatSchema = new mongoose.Schema({
         type: Number,
         required: [true, "Seat Number is required"]
     },
-    salonName: {
+    saloonName: {
         type: String,
         required: [true, "Salon Name is required"]
     },
