@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken';
 import User from './models/user.js';
 
+//authorization control
 const authMiddleware = async (req, res, next) => {
   try {
     const token = req.header('Authorization').replace('Bearer ', '');
@@ -22,4 +23,4 @@ const authMiddleware = async (req, res, next) => {
   }
 };
 
-module.exports = authMiddleware;
+export default authMiddleware;

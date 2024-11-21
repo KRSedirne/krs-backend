@@ -1,5 +1,6 @@
 import User from '../models/user.js'
 import jwt from 'jsonwebtoken'
+import globalConfig from '../configs/globalConfig.js';
 
 export const register = async (req, res) => {
   try {
@@ -19,7 +20,7 @@ export const register = async (req, res) => {
     // Generate JWT token
     const token = jwt.sign(
       { id: user._id, email: user.email }, 
-      process.env.JWT_SECRET, 
+      globalConfig.jwtKey, 
       { expiresIn: '1d' }
     );
 
@@ -48,7 +49,7 @@ export const login = async (req, res) => {
     // Generate JWT token
     const token = jwt.sign(
       { id: user._id, email: user.email }, 
-      process.env.JWT_SECRET, 
+      globalConfig.jwtKey, 
       { expiresIn: '1d' }
     );
 
