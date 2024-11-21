@@ -1,6 +1,5 @@
 import express from 'express';
 import { getAllPunishments, getPunishmentDetails, createPunishment, updatePunishment, deletePunishment } from '../controllers/punishmentController.js';
-import swaggerDocs from '../configs/swagger.js';
 
 const router = express.Router();
 

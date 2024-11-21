@@ -11,6 +11,9 @@ const globalConfig = {
     // mongoDB
     mongoDev: process.env.DB_URI_DEV,
     mongoProd: process.env.DB_URI_PROD,
+
+    // jwt secret key
+    jwtSecret: process.env.JWT_SECRET
 }
 
 export default globalConfig;
