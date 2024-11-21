@@ -1,6 +1,6 @@
 import User from '../models/user.js'
 import jwt from 'jsonwebtoken'
-import { generateId } from '../utils.js'
+import { generateId } from '../utils/idGenerator.js'
 import globalConfig from '../configs/globalConfig.js';
 
 export const register = async (req, res) => {
