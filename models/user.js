@@ -1,4 +1,5 @@
 import mongoose from "mongoose"
+import bcrypt from "bcryptjs"
 
 const userSchema = new mongoose.Schema({
     id: {
@@ -26,13 +27,13 @@ const userSchema = new mongoose.Schema({
     },
     role: {
         type: String,
-        enum: ["user", "admin"],
+        enum: ["user", "admin", "Admin", "User"],
         default: "user"
     }
 })
 
 //şifre hashlemek için
-UserSchema.pre('save', async function (next) {
+userSchema.pre('save', async function (next) {
     if (this.isModified('password')) {
         this.password = await bcrypt.hash(this.password, 10);
     }
@@ -40,7 +41,7 @@ UserSchema.pre('save', async function (next) {
 });
 
 //şifre doğru mu değil mi kontrol etmek için
-UserSchema.methods.comparePassword = async function (candidatePassword) {
+userSchema.methods.comparePassword = async function (candidatePassword) {
     return bcrypt.compare(candidatePassword, this.password);
 };
 
