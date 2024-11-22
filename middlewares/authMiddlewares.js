@@ -1,10 +1,11 @@
 import jwt from 'jsonwebtoken';
 import User from './models/user.js';
+import globalConfig from '../configs/globalConfig.js';
 
 const authMiddleware = async (req, res, next) => {
   try {
     const token = req.header('Authorization').replace('Bearer ', '');
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, globalConfig.jwtSecret);
 
     const user = await User.findOne({
       _id: decoded.id
