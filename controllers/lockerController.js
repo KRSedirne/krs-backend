@@ -1,11 +1,11 @@
-import Locker from "../models/locker";
-import {generateId} from "../utils/idGenerator"
+import Locker from "../models/locker.js";
+import {generateId} from "../utils/idGenerator.js"
 
 //listing all lockers
 export const getAllLockers=async(req,res)=>{
     try{
         const response=await Locker.find();
-        if(response.lenght===0){
+        if(response.length===0){
             throw new Error("Lockers not found");
         }
         return res.status(200).json({response});
@@ -21,12 +21,12 @@ export const getLockerDetails=async(req,res)=>{
         const id=req?.params?.id;
         const response= await Locker.findOne({id:id});
         if(!response){
-            throw new Error('Couldn\'t find any locker id match with ${id}');
+            throw new Error(`Couldn\'t find any locker id match with ${id}`);
         }
         return res.status(200).json({response});    
     }
     catch(e){
-        return res.status(400).json({message:"Something went wrong. Couldn't find any locker with "+id+"."})
+        return res.status(400).json({message:`Something went wrong. Couldn't find any locker with ${id}`})
     }
 }
 //create a new locker
@@ -34,12 +34,11 @@ export const createLocker=async(req,res)=>{
     try{
         const id=generateId();
         req.body.id=id;
-        if(!await Locker.findOne({id:id})){
+        if(await Locker.findOne({id:id})){
             throw new Error("ID already exits");
         }
-        req.body.isBooked=false;
-        const response=await Locker(req?.body);
-        return res.status(201).json({response,message:"Seat created successfully"});
+        const response=await Locker.create(req?.body);
+        return res.status(201).json({response,message:"Locker created successfully"});
     }
     catch(e){
         return res.status(400).json({message:"Error can't create the locker."})
@@ -91,7 +90,7 @@ export const reserveLocker=async(req,res)=>{
         locker.isBooked=true;
         locker.user=user;
         await locker.save();
-        res.status(200).json({message:"Locker reserved by ${locker.user}",locker});
+        res.status(200).json({message:`Locker reserved by ${locker.user}`,locker});
     }
     catch(e){
         res.status(400).json({message:"Error locker cannot be reserved"},e);
@@ -116,3 +115,9 @@ export const cancelLockerReservation=async(req,res)=>{
         res.status(400).json({message:"Error locker reservation not cancelled."},e);
     }
 }
+export const lockerReservationTimer=async(req,res)=>{
+    return
+};
+export const lockerReservationTimerExpairedByAuto=async(req,res)=>{
+    return
+};

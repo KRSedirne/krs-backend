@@ -1,6 +1,6 @@
 import mongoose from "mongoose"
 
-const rezervationSchema = new mongoose.Schema({
+const reservationSchema = new mongoose.Schema({
     id: {
         type: Number,
         required: true
@@ -34,4 +34,4 @@ const rezervationSchema = new mongoose.Schema({
     }
 }, { timestamps: true })
 
-export default mongoose.model("Rezervation", rezervationSchema);
+export default mongoose.model("Reservation", reservationSchema);
