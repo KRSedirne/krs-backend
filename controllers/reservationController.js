@@ -37,7 +37,7 @@ export const createReservation = async (req, res) => {
     try {
 
         const id = generateId();
-        req.body.id = id;
+        req.body._id = id;
 
         const isIdExist = await Reservation.findOne({ id: id });
 
