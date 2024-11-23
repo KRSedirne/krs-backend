@@ -11,7 +11,7 @@ export const createUser = async (req, res) => {
                 succes: false,
                 message: "User already exists"});
         }
-        const newUser = await User.create({
+        const newUser = new User({
             id:userId,
             name: req.body.name,
             lastname: req.body.lastname,
@@ -19,6 +19,7 @@ export const createUser = async (req, res) => {
             password: req.body.password,
             role: req.body.role
         });
+        await newUser.save();
         res.status(201).json({
             succes: true,
             data: newUser
@@ -42,7 +43,7 @@ export const updateUser = async (req, res) => {
             });
         }
         
-        if(req.body.email && req.body.email !== user.email){
+        if(req.body.email !== user.email){
             const existingUser = await User.findOne({email: req.body.email});
             if(existingUser){
                 return res.status(400).json({
