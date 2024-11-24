@@ -1,7 +1,6 @@
 import Locker from "../models/locker.js";
 import {generateId} from "../utils/idGenerator.js"
-
-const cron=require("cron");
+import cron from "node-cron"
 //listing all lockers
 export const getAllLockers=async(req,res)=>{
     try{
@@ -119,8 +118,8 @@ export const cancelLockerReservation=async(req,res)=>{
 }
 
  export const lockerReservationTimerExpairedByAuto=async(req,res)=>{
-    const fiveDays = 5 * 24 * 60 * 60 * 1000;
-    cron.schedule('0 0 * * *', async () => {//min hour day(days of the week) month year 
+    const fiveDays = 5 *  60 * 1000;
+    cron.schedule('/2 * * * *', async () => {//min hour day(days of the week) month year 
         try{
             const unavaliableLockers=await Locker.find({isBooked:true});
         const unformatedDate=new Date();
