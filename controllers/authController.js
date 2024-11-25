@@ -1,11 +1,16 @@
-import User from '../models/user.js'
-import jwt from 'jsonwebtoken'
+import User from '../models/user.js';
+import jwt from 'jsonwebtoken';
+import express from 'express';
+import cookieParser from 'cookie-parser';
+import { generateId } from '../utils/idGenerator.js';
 import globalConfig from '../configs/globalConfig.js';
+
+const activeTokens = new Set();
 
 export const register = async (req, res) => {
   try {
     const id = generateId();
-    const { email, password, name, lastname,role } = req.body;
+    const { email, password, name, lastname } = req.body;
     
     // Check if user already exists
     const existingUser = await User.findOne({ email });
@@ -14,7 +19,7 @@ export const register = async (req, res) => {
     }
 
     // Create new user
-    const user = new User({ id, password, name, lastname,role });
+    const user = new User({ id, name, lastname, email, password });
     await user.save();
 
     // Generate JWT token
@@ -35,7 +40,7 @@ export const login = async (req, res) => {
     const { email, password } = req.body;
     
     // Find user by email
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email }).select('+password');
     if (!user) {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
@@ -48,13 +53,31 @@ export const login = async (req, res) => {
 
     // Generate JWT token
     const token = jwt.sign(
-      { id: user._id, email: user.email }, 
+      { id: user._id, email: user.email, role: user.role }, 
       globalConfig.jwtKey, 
       { expiresIn: '1d' }
     );
 
-    res.json({ token, user: { id: user._id, email: user.email } });
+    res.status(200).cookie('token', token, { httpOnly: true }).json({ token, user: { id: user._id, email: user.email ,role: user.role} });
+    // res.json({ token, user: { id: user._id, email: user.email } });
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
 };
+
+export const logout = async (req, res) => {
+  try {
+    const token = req.cookies.token;
+    if(!token) {
+      return res.status(400).json({succes:false, message: 'Not token found.User is already logged out.' });
+    }
+      activeTokens.delete(token);
+    res.clearCookie('token',{
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production', //https ortamında çalışırken true olmalı
+      sameSite: 'strict', //CSRF korumasi için
+    }).json({ message: 'Logged out successfuly' });
+  } catch (error) {
+    res.status(500).json({ succes:false, message:"Logout failed", error: error.message });
+  }
+}

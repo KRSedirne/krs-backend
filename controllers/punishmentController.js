@@ -35,7 +35,7 @@ export const getPunishmentDetails = async (req, res) => {
 // Create a punishment
 export const createPunishment = async (req, res) => {
     try {
-
+        req.body.user= req?.user?._id;
         const id = generateId();
         req.body.id = id;
 
@@ -54,7 +54,7 @@ export const createPunishment = async (req, res) => {
         const response = await Punishment.create(req?.body);
         return res.status(200).json({ response, message: "Punishment created successfully" });
     } catch (error) {
-        return res.status(404).json({ message: "Punishment couldn't create, something is gone wrong..." });
+        return res.status(404).json({ message: error.message});
     }
 }
 

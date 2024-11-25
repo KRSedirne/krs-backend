@@ -7,7 +7,7 @@ const punishmentSchema = new mongoose.Schema({
     },
     user: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
+        ref: "users",
         required: [true, "User is required"]
     },
     type: {

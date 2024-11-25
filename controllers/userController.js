@@ -1,37 +1,6 @@
 import User from "../models/user.js"
 import {generateId} from "../utils/idGenerator.js"
 
-export const createUser = async (req, res) => {
-    try{
-        const userId = generateId();
-
-        const existingUser = await User.findOne({email: req.body.email});
-        if(existingUser){
-            return res.status(400).json({
-                succes: false,
-                message: "User already exists"});
-        }
-        const newUser = new User({
-            id:userId,
-            name: req.body.name,
-            lastname: req.body.lastname,
-            email: req.body.email,  
-            password: req.body.password,
-            role: req.body.role
-        });
-        await newUser.save();
-        res.status(201).json({
-            succes: true,
-            data: newUser
-        });
-    }catch(error){
-        res.status(400).json({
-            succes: false,
-            message: error.message
-        });
-    }
-}
-
 export const updateUser = async (req, res) => {
     try{
         const user = await User.findOneAndUpdate({userId: req.params.userId});
@@ -131,5 +100,38 @@ export const getAllUsers = async (req, res) => {
             succes: false,
             message: error.message
         });
+    }
+}
+
+export const updatePassword = async (req, res) => {
+    const { oldPassword, newPassword } = req.body;
+
+    if (!oldPassword || !newPassword) {
+        return res.status(400).json({ message: 'Old Password and New Password is required!' });
+    }
+    try {
+        const userId = req.user.id;
+
+        const user = await User.findOne({ where: { _id: userId } }); 
+        if (!user) {
+            return res.status(404).json({ message: 'User is not found' });
+        }
+
+        const isMatch = await bcrypt.compare(oldPassword, user.password);
+        if (!isMatch) {
+            return res.status(400).json({ message: 'Old password is wrong!' });
+        }
+
+        if (await bcrypt.compare(newPassword, user.password)) {
+            return res.status(400).json({ message: "New Password and Old Password can't be same" });
+        }
+
+        user.password = newPassword;
+        await user.save();
+
+        return res.status(200).json({ message: 'Password updated succesfully' });
+    } catch (error) {
+        console.error('Password update error', error);
+        return res.status(500).json({ message: 'Server error!' });
     }
 }
