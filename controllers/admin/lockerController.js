@@ -1,6 +1,7 @@
 import Locker from "../models/locker.js";
 import {generateId} from "../utils/idGenerator.js"
 import cron from "node-cron"
+import createSuspended from "../../utils/createSuspended.js";
 //listing all lockers
 export const getAllLockers=async(req,res)=>{
     try{
@@ -68,7 +69,7 @@ export const deleteLocker=async(req,res)=>{
     try{
         const id=req.params.id;
         const deletedLocker=await Locker.findOneAndDelete({id});
-        if(!deleteLocker){
+        if(!deletedLocker){
             return res.status(404).json({message:"Locker not found."});
         }
         res.status(200).json({message:"Locker deleted successfully",deleteLocker});
@@ -84,6 +85,9 @@ export const reserveLocker=async(req,res)=>{
         const locker=await Locker.findOne({id:id});
         if(!locker){
             return res.status(404).json({message:"Locker not Found"});
+        }
+        if(Locker.findOne({user:user})){
+            return res.status(400).json({message:"Error user has active locker reservation."})
         }
         if(locker.isBooked){
             return res.status(400).json({message:"This locker already reserved"});
@@ -128,6 +132,15 @@ export const cancelLockerReservation=async(req,res)=>{
         const lockerReservationDate= new Date(`${locker.updatedAt.getFullYear()}-${locker.updatedAt.getMonth() + 1}-${locker.updatedAt.getDate()}`); 
         if(lockerReservationDate-now>fiveDays){
             //TODO add suspended to user 
+            data={
+                id:generateId(),
+                user:locker.user,
+                type:"locker",
+                description:"User didn't returned the locker key. Suspended for a week",
+                expaireTime:now+7 *  24*60 * 1000
+            }
+            await createSuspended(data);
+            
             locker.isBooked = false;
             locker.user = null;
             await locker.save();

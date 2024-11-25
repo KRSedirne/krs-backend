@@ -1,16 +1,12 @@
 import { getAllLockers,getLockerDetails,reserveLocker,lockerReservationTimerExpairedByAuto } from "../controllers/lockerController.js";
-
+//needs to change
+import authMiddleware from "../middlewares/authMiddlewares.js";
 import express from "express";
-
 const router=express.Router();
 
-router.route("/lockers").get(getAllLockers);
-router.route("/locker/:id").get(getLockerDetails);
-//router.route("/locker/create").post(createLocker);
-//router.route("/locker/update/:id").put(updateLocker);
-//router.route("/locker/delete/:id").delete(deleteLocker);
-router.route("/locker/reservation/:id").put(reserveLocker);
-//router.route("/locker/reservation/cancel/:id").put(cancelLockerReservation);
-router.route("/locker/reservation/autoCancel").put(lockerReservationTimerExpairedByAuto);
+router.route("/lockers").get(authMiddleware,getAllLockers);
+router.route("/locker/:id").get(authMiddleware,getLockerDetails);
+router.route("/locker/reservation/:id").put(authMiddleware,reserveLocker);
+router.route("/locker/reservation/autoCancel").put(authMiddleware,lockerReservationTimerExpairedByAuto);
 
 export default router;
