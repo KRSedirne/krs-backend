@@ -1,62 +1,6 @@
 import User from "../models/user.js"
 import bcrypt from "bcryptjs"
 
-export const updateUser = async (req, res) => {
-    try{
-        const user = await User.findOne({_id: req?.params?.id});
-        
-        if(!user){
-            return res.status(404).json({
-                succes: false,
-                message: "User not found"
-            });
-        }
-        
-        const updatedUser = await User.findOneAndUpdate(
-            {_id: req?.params?.id},
-            {
-            name: req.body.name,
-            lastname: req.body.lastname,
-            email: req.body.email, 
-            password: req.body.password, 
-        },
-        {new: true, runValidators: true});
-
-        res.status(200).json({
-            success: true,
-            data: updatedUser
-        });
-
-    }catch(error){
-        res.status(400).json({
-            success: false,
-            message: error.message
-        });
-    }
-}
-
-export const deleteUser = async (req, res) => {
-    try{
-        const user = await User.findOne({_id: req?.params?.id});
-        if(!user){
-            return res.status(404).json({
-                succes: false,
-                message: "User not found"
-            });
-        }
-        await user.deleteOne();
-        res.status(200).json({
-            succes: true,
-            message: "User deleted successfully"
-        });
-    }catch(error){
-        res.status(400).json({
-            succes: false,
-            message: error.message
-        });
-    }
-}
-
 export const getUser = async (req, res) => {
     try{
         const user = await User.findOne({_id: req?.params?.id});

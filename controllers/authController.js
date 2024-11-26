@@ -1,15 +1,11 @@
 import User from '../models/user.js';
 import jwt from 'jsonwebtoken';
-import express from 'express';
-import cookieParser from 'cookie-parser';
-import { generateId } from '../utils/idGenerator.js';
 import globalConfig from '../configs/globalConfig.js';
 
 const activeTokens = new Set();
 
 export const register = async (req, res) => {
   try {
-    const id = generateId();
     const { email, password, name, lastname } = req.body;
     
     // Check if user already exists
@@ -19,7 +15,7 @@ export const register = async (req, res) => {
     }
 
     // Create new user
-    const user = new User({ id, name, lastname, email, password });
+    const user = new User({name, lastname, email, password });
     await user.save();
 
     // Generate JWT token
@@ -29,7 +25,7 @@ export const register = async (req, res) => {
       { expiresIn: '1d' }
     );
 
-    res.status(201).json({ token, user: { id: user._id, email: user.email } });
+    res.status(201).json({ token, user: { _id: user._id, email: user.email } });
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
@@ -53,12 +49,12 @@ export const login = async (req, res) => {
 
     // Generate JWT token
     const token = jwt.sign(
-      { id: user._id, email: user.email, role: user.role }, 
+      { id: user._id, email: user.email}, 
       globalConfig.jwtKey, 
       { expiresIn: '1d' }
     );
 
-    res.status(200).cookie('token', token, { httpOnly: true }).json({ token, user: { id: user._id, email: user.email ,role: user.role} });
+    res.status(200).cookie('token', token, { httpOnly: true }).json({ token, user: { _id: user._id, email: user.email} });
     // res.json({ token, user: { id: user._id, email: user.email } });
   } catch (error) {
     res.status(400).json({ message: error.message });
