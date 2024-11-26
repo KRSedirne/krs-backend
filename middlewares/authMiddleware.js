@@ -4,8 +4,10 @@ import User from '../models/user.js';
 //authorization control
 export const isAuthenticatedUser = async (req, res, next) => {
   try {
-    const token = req.header('Authorization').replace('Bearer ', '');
-    // const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3NDFlNTIzNTUzN2NiMzAwYzg5NGQxNSIsImVtYWlsIjoiZWNlbUBnbWFpbC5jb20iLCJpYXQiOjE3MzI0NTM4NTcsImV4cCI6MTczMjU0MDI1N30.tzEcDByKptvlw9VwiWTF93KFKssOoNYDMcnyS8VrrEc";
+    // const token = req.header('Authorization').replace('Bearer ', '');
+    // console.log("token :",token);
+    // const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3NDFkNDMzZWQzYjMyMTJhOTMxZTc1YiIsImVtYWlsIjoiZWJyYXJAZ21haWwuY29tIiwicm9sZSI6ImFkbWluIiwiaWF0IjoxNzMyNjE5MDEyLCJleHAiOjE3MzI3MDU0MTJ9.T30h2IftxCAmMSGmx5OHzMAEr7NwBSIUYmvB4DfUf4I";
+    const {token} = req?.cookies;
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
   
     const user = await User.findOne({ 

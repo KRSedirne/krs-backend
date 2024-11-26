@@ -1,5 +1,5 @@
 import User from "../models/user.js"
-import {generateId} from "../utils/idGenerator.js"
+import bcrypt from "bcryptjs"
 
 export const updateUser = async (req, res) => {
     try{
@@ -110,11 +110,11 @@ export const updatePassword = async (req, res) => {
         return res.status(400).json({ message: 'Old Password and New Password is required!' });
     }
     try {
-        const userId = req.user.id;
+        const userId = req?.user?._id;
 
-        const user = await User.findOne({ where: { _id: userId } }); 
+        const user = await User.findOne( {_id: userId}).select('+password'); 
         if (!user) {
-            return res.status(404).json({ message: 'User is not found' });
+            return res.status(404).json({ message: 'User not found' });
         }
 
         const isMatch = await bcrypt.compare(oldPassword, user.password);
