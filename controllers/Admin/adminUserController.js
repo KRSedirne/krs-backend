@@ -1,32 +1,30 @@
 import User from "../models/user.js"
 import bcrypt from "bcryptjs"
+import { generateId } from "../utils/idGenerator.js";
 
-export const updateUser = async (req, res) => {
+
+export const createUser = async (req, res) => {
     try{
-        const user = await User.findOne({_id: req?.params?.id});
-        
-        if(!user){
-            return res.status(404).json({
+        const userId = generateId();
+
+        const existingUser = await User.findOne({email: req.body.email});
+        if(existingUser){
+            return res.status(400).json({
                 succes: false,
-                message: "User not found"
-            });
+                message: "User already exists"});
         }
-        
-        const updatedUser = await User.findOneAndUpdate(
-            {_id: req?.params?.id},
-            {
+        const newUser = new User({
+            id:userId,
             name: req.body.name,
             lastname: req.body.lastname,
-            email: req.body.email, 
-            password: req.body.password, 
-        },
-        {new: true, runValidators: true});
-
-        res.status(200).json({
-            success: true,
-            data: updatedUser
+            email: req.body.email,  
+            password: req.body.password,
         });
-
+        await newUser.save();
+        res.status(201).json({
+            succes: true,
+            data: newUser
+        });
     }catch(error){
         res.status(400).json({
             success: false,
@@ -35,9 +33,53 @@ export const updateUser = async (req, res) => {
     }
 }
 
+export const updateUser = async (req, res) => {
+    try{
+        const user = await User.findOneAndUpdate({userId: req.params.userId});
+        
+        if(!user){
+            return res.status(404).json({
+                succes: false,
+                message: "User not found"
+            });
+        }
+        
+        if(req.body.email !== user.email){
+            const existingUser = await User.findOne({email: req.body.email});
+            if(existingUser){
+                return res.status(400).json({
+                    succes: false,
+                    message: "User already exists"
+                });
+            }
+        }
+        const updatedUser = await User.findOneAndUpdate(
+            {userId: req.params.userId},
+            {
+            name: req.body.name,
+            lastname: req.body.lastname,
+            email: req.body.email, 
+            password: req.body.password, 
+            role: req.body.role
+        },
+        {new: true, runValidators: true});
+
+        res.status(200).json({
+            succes: true,
+            data: updatedUser
+        });
+
+    }catch(error){
+        res.status(400).json({
+            succes: false,
+            message: error.message
+        });
+    }
+}
+
 export const deleteUser = async (req, res) => {
     try{
-        const user = await User.findOne({_id: req?.params?.id});
+        const user = await User.findOne({id: req.params.id});
         if(!user){
             return res.status(404).json({
                 succes: false,
@@ -59,7 +101,7 @@ export const deleteUser = async (req, res) => {
 
 export const getUser = async (req, res) => {
     try{
-        const user = await User.findOne({_id: req?.params?.id});
+        const user = await User.findOne({id: req?.params?.id});
         if(!user){
             return res.status(404).json({
                 succes: false,
