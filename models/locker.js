@@ -1,10 +1,6 @@
 import mongoose from "mongoose"
 
 const lockerSchema = new mongoose.Schema({
-    id: {
-        type: Number,
-        required: true
-    },
     lockerNumber: {
         type: Number,
         required: [true, "Locker Number is required"]

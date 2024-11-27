@@ -1,10 +1,6 @@
 import mongoose from "mongoose"
 
 const seatSchema = new mongoose.Schema({
-    id: {
-        type: Number,
-        required: true
-    },
     seatNumber: {
         type: Number,
         required: [true, "Seat Number is required"]

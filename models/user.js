@@ -2,10 +2,6 @@ import mongoose from "mongoose"
 import bcrypt from "bcryptjs"
 
 const userSchema = new mongoose.Schema({
-    id: {
-        type: Number,
-        required: true
-    },
     name: {
         type: String,
         required: [true, "Name is required"]
@@ -33,8 +29,8 @@ const userSchema = new mongoose.Schema({
 })
 
 //şifre hashlemek için
-userSchema.pre('save', async function (next) {
-    if (this.isModified('password')) {
+userSchema.pre("save", async function (next) {
+    if (!this.isModified("password")) {
         this.password = await bcrypt.hash(this.password, 10);
     }
     next();

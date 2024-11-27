@@ -1,18 +1,15 @@
 import mongoose from "mongoose"
 
-const punishmentSchema = new mongoose.Schema({
-    id: {
-        type: Number,
-        required: true
-    },
+const suspendedSchema = new mongoose.Schema({
     user: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
+        ref: "users",
         required: [true, "User is required"]
     },
     type: {
         type: String,
-        required: [true, "Type is required"]
+        enum: ["locker", "reservation"],
+        required: [true, "Type is required"] // enum
     },
     description: {
         type: String,
@@ -24,4 +21,4 @@ const punishmentSchema = new mongoose.Schema({
     }
 })
 
-export default mongoose.model("Punishement", punishmentSchema);
+export default mongoose.model("Punishement", suspendedSchema);

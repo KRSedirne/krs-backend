@@ -1,18 +1,14 @@
 import mongoose from "mongoose"
 
 const reservationSchema = new mongoose.Schema({
-    id: {
-        type: Number,
-        required: true
-    },
     user: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
+        ref: "users",
         required: [true, "User is required"]
     },
     seat: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Seat",
+        ref: "seats",
         required: [true, "Seat is required"]
     },
     reservationDate: {
@@ -23,15 +19,24 @@ const reservationSchema = new mongoose.Schema({
         type: String,
         required: [true, "QR Code is required"]
     },
-    outReason: {
-        type: String,
-        required: [true, "Out Reason is required"],
-        default: "false"
-    },
+    outReason: [
+        {
+            description: {
+                type: String,
+                required: [true, "Description is required"]
+            },
+            date: {
+                type: Date,
+                required: [true, "Date is required"]
+            }
+        }
+    ],
     isCheckIn: {
         type: Boolean,
         default: false
     }
+
+
 }, { timestamps: true })
 
 export default mongoose.model("Reservation", reservationSchema);

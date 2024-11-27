@@ -6,7 +6,7 @@ import globalConfig from '../configs/globalConfig.js';
 export const register = async (req, res) => {
   try {
     const id = generateId();
-    const { email, password, name, lastname, role } = req.body;
+    const { name, lastname, email, password } = req.body;
 
     // Check if user already exists
     const existingUser = await User.findOne({ email });
@@ -15,7 +15,7 @@ export const register = async (req, res) => {
     }
 
     // Create new user
-    const user = new User({ id, password, name, lastname, role });
+    const user = new User({ id, name, lastname, email, password, });
     await user.save();
 
     // Generate JWT token
@@ -35,8 +35,10 @@ export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
+    console.log(email, password); // Ebrar@hotmail.com 1234567
+
     // Find user by email
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email }).select('+password');
     if (!user) {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
@@ -47,12 +49,22 @@ export const login = async (req, res) => {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
+    console.log("user: ", user);
+    console.log("isMatch: ", isMatch);
+    console.log("user id: ", user._id);
+    console.log("user email: ", user.email);
+    console.log("globalConfig: ", globalConfig.jwtSecret);
+
+
+
     // Generate JWT token
     const token = jwt.sign(
       { id: user._id, email: user.email },
       globalConfig.jwtSecret,
       { expiresIn: '1d' }
     );
+
+    console.log(token);
 
     res.json({ token, user: { id: user._id, email: user.email } });
   } catch (error) {

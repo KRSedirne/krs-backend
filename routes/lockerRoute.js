@@ -1,7 +1,7 @@
-import { getAllLockers,getLockerDetails,createLocker,updateLocker,deleteLocker,reserveLocker,cancelLockerReservation } from "../controllers/lockerController.js";
+import { getAllLockers, getLockerDetails, createLocker, updateLocker, deleteLocker, reserveLocker, cancelLockerReservation } from "../controllers/lockerController.js";
 import express from "express";
 
-const router=express.Router();
+const router = express.Router();
 
 router.route("/lockers").get(getAllLockers);
 router.route("/locker/:id").get(getLockerDetails);
