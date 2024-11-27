@@ -3,6 +3,7 @@ import { connectDatabase } from "./configs/dbConfig.js";
 import globalConfig from "./configs/globalConfig.js";
 import cors from "cors";
 import morgan from 'morgan';
+import cookieParser from 'cookie-parser';
 import seatRoutes from "./routes/seatRoute.js";
 import reservationRoute from "./routes/reservationRoute.js";
 import punishmentRoute from "./routes/punishmentRoute.js";
@@ -13,6 +14,7 @@ import swagger from "./configs/swagger.js";
 
 const app = express();
 
+
 // Connecting Database
 connectDatabase();
 
@@ -20,7 +22,7 @@ connectDatabase();
 app.use(cors())
 app.use(express.json())
 app.use(morgan("dev"));
-
+app.use(cookieParser());
 // Use all routes
 app.use("/api/v1", seatRoutes);
 app.use("/api/v1", reservationRoute);

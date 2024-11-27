@@ -1,27 +1,9 @@
-import { getAllLockers,getLockerDetails,createLocker,updateLocker,deleteLocker,reserveLocker,cancelLockerReservation,lockerReservationTimerExpairedByAuto } from "../controllers/admin/lockerController.js";
-import { getAllUsers, getUser, createUser, updateUser, deleteUser } from '../controllers/userController.js';
-import authMiddleware from "../middlewares/authMiddlewares.js";
-import express from "express";
+import express from 'express';
+import { getAllUsers, getUser, createUser, updateUser, deleteUser, updatePassword } from '../controllers/userController.js';
+import { isAuthenticatedUser, isAdmin } from '../middlewares/authMiddleware.js';
 
-const router=express.Router();
+const router = express.Router();
 
-router.route("/lockers").get(getAllLockers);
-router.route("/locker/:id").get(getLockerDetails);
-router.route("/locker/create").post(createLocker);
-router.route("/locker/update/:id").put(authMiddleware,updateLocker);
-router.route("/locker/delete/:id").delete(authMiddleware,deleteLocker);
-router.route("/locker/reservation/:id").put(authMiddleware,reserveLocker);
-router.route("/locker/reservation/cancel/:id").put(authMiddleware,cancelLockerReservation);
-router.route("/locker/reservation/autoCancel").put(authMiddleware,lockerReservationTimerExpairedByAuto);
+router.route('/user/create').post(isAuthenticatedUser,isAdmin,createUser);
 
-
-
-
-router.route('/users').get(getAllUsers)
-router.route('/user/:id').get(getUser)
-router.route('/user/create').post(createUser)
-router.route('/user/update/:id').put(updateUser)
-router.route('/user/delete/:id').delete(deleteUser)
-
-
-export default router;
+export default router; 

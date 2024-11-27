@@ -1,6 +1,5 @@
 import Punishment from "../models/punishment.js";
 import { generateId } from "../utils/idGenerator.js";
-import createSuspened from "../utils/createSuspended.js";
 
 // Get all punishments
 export const getAllPunishments = async (req, res) => {
@@ -34,31 +33,6 @@ export const getPunishmentDetails = async (req, res) => {
 }
 
 // Create a punishment
-// export const createPunishment = async (req, res) => {
-//     try {
-
-//         const id = generateId();
-//         req.body.id = id;
-
-//         const isIdExist = await Punishment.findOne({ id: id });
-
-//         if (isIdExist) {
-//             throw new Error(`Id already exist ${req?.body.id}`);
-//         }
-
-//         const isPunishmentExist = await Punishment.findOne({ punishmentDate: req?.body.punishmentDate, punishmentType: req?.body.punishmentType });
-
-//         if (isPunishmentExist) {
-//             throw new Error("Punishment already exist");
-//         }
-
-//         const response = await Punishment.create(req?.body);
-//         return res.status(200).json({ response, message: "Punishment created successfully" });
-//     } catch (error) {
-//         return res.status(404).json({ message: "Punishment couldn't create, something is gone wrong..." });
-//     }
-// }
-//not tested waiting for check
 export const createPunishment = async (req, res) => {
     try {
         req.body.user= req?.user?._id;
@@ -76,14 +50,8 @@ export const createPunishment = async (req, res) => {
         if (isPunishmentExist) {
             throw new Error("Punishment already exist");
         }
-        const suspendedData={
-            id,
-            user:req.body.user,
-            type:req.body.type,
-            description:req.body.description,
-            expaireTime:req.body.expaireTime,
-        }
-        const response = await createSuspened(suspendedData);
+
+        const response = await Punishment.create(req?.body);
         return res.status(200).json({ response, message: "Punishment created successfully" });
     } catch (error) {
         return res.status(404).json({ message: error.message});
