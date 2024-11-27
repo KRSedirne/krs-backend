@@ -1,5 +1,6 @@
-import dotenv from "dotenv";
+import dotenv from 'dotenv';
 
+// .env dosyasını yükle
 dotenv.config();
 
 const globalConfig = {

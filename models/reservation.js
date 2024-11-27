@@ -13,7 +13,7 @@ const reservationSchema = new mongoose.Schema({
     },
     reservationDate: {
         type: Date,
-        required: [true, "Rezervation Date is required"]
+        required: [true, "Reservation Date is required"]
     },
     qrCode: {
         type: String,

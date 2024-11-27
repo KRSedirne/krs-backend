@@ -1,12 +1,12 @@
-import User from '../models/user.js'
-import jwt from 'jsonwebtoken'
-import { generateId } from '../utils/idGenerator.js'
+import User from '../models/user.js';
+import jwt from 'jsonwebtoken';
 import globalConfig from '../configs/globalConfig.js';
+
+const activeTokens = new Set();
 
 export const register = async (req, res) => {
   try {
-    const id = generateId();
-    const { name, lastname, email, password } = req.body;
+    const { email, password, name, lastname } = req.body;
 
     // Check if user already exists
     const existingUser = await User.findOne({ email });
@@ -15,7 +15,7 @@ export const register = async (req, res) => {
     }
 
     // Create new user
-    const user = new User({ id, name, lastname, email, password, });
+    const user = new User({ name, lastname, email, password });
     await user.save();
 
     // Generate JWT token
@@ -25,7 +25,7 @@ export const register = async (req, res) => {
       { expiresIn: '1d' }
     );
 
-    res.status(201).json({ token, user: { id: user._id, email: user.email } });
+    res.status(201).json({ token, user: { _id: user._id, email: user.email } });
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
@@ -49,25 +49,33 @@ export const login = async (req, res) => {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
-    console.log("user: ", user);
-    console.log("isMatch: ", isMatch);
-    console.log("user id: ", user._id);
-    console.log("user email: ", user.email);
-    console.log("globalConfig: ", globalConfig.jwtSecret);
-
-
-
     // Generate JWT token
     const token = jwt.sign(
       { id: user._id, email: user.email },
-      globalConfig.jwtSecret,
+      globalConfig.jwtKey,
       { expiresIn: '1d' }
     );
 
-    console.log(token);
-
-    res.json({ token, user: { id: user._id, email: user.email } });
+    res.status(200).cookie('token', token, { httpOnly: true }).json({ token, user: { _id: user._id, email: user.email } });
+    // res.json({ token, user: { id: user._id, email: user.email } });
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
 };
+
+export const logout = async (req, res) => {
+  try {
+    const token = req.cookies.token;
+    if (!token) {
+      return res.status(400).json({ succes: false, message: 'Not token found.User is already logged out.' });
+    }
+    activeTokens.delete(token);
+    res.clearCookie('token', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production', //https ortamında çalışırken true olmalı
+      sameSite: 'strict', //CSRF korumasi için
+    }).json({ message: 'Logged out successfuly' });
+  } catch (error) {
+    res.status(500).json({ succes: false, message: "Logout failed", error: error.message });
+  }
+}

@@ -18,7 +18,6 @@ const userSchema = new mongoose.Schema({
     password: {
         type: String,
         required: [true, "Password is required"],
-        maxlength: [30, "Password shouldn't be more 30 character"],
         select: false
     },
     role: {
@@ -29,9 +28,39 @@ const userSchema = new mongoose.Schema({
 })
 
 //şifre hashlemek için
-userSchema.pre("save", async function (next) {
-    if (!this.isModified("password")) {
-        this.password = await bcrypt.hash(this.password, 10);
+userSchema.pre('save', async function (next) {
+    if (this.isModified('password')) {
+        if (this.password.length < 2 || this.password.length > 30) {
+            return next(new Error('Password should be between 2 and 30 characters.'));
+        }
+        try {
+            this.password = await bcrypt.hash(this.password, 10);
+        } catch (error) {
+            return next(error);
+        }
+    }
+    next();
+});
+
+// Şifre doğrulama (hashleme işleminden önce) - findOneAndUpdate middleware
+userSchema.pre('findOneAndUpdate', async function (next) {
+    const update = this.getUpdate();
+
+    // Eğer şifre güncelleniyorsa, hashle
+    if (update.password) {
+        // Plain text şifrenin uzunluğunu kontrol et
+        if (update.password.length < 2 || update.password.length > 30) {
+            return next(new Error('Password should be between 2 and 30 characters.'));
+        }
+
+        // Hashleme işlemi
+        try {
+            const saltRounds = 10;
+            update.password = await bcrypt.hash(update.password, saltRounds);
+            this.setUpdate(update);  // Güncellenmiş şifreyi set et
+        } catch (error) {
+            return next(error);
+        }
     }
     next();
 });
