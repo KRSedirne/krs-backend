@@ -1,5 +1,4 @@
 import Reservation from '../models/reservation.js';
-import { generateId } from "../utils/idGenerator.js";
 
 // Get all rezervations
 export const getAllReservations = async (req, res) => {
@@ -20,7 +19,7 @@ export const getAllReservations = async (req, res) => {
 export const getReservationDetails = async (req, res) => {
     try {
         const id = req?.params?.id;
-        const response = await Reservation.findOne({ id: id });
+        const response = await Reservation.findOne({ _id: id });
 
         if (!response) {
             throw new Error("Reservation not found with this ID");
@@ -36,13 +35,12 @@ export const getReservationDetails = async (req, res) => {
 export const createReservation = async (req, res) => {
     try {
 
-        const id = generateId();
-        req.body._id = id;
+        id=req?.body?.id ;
 
-        const isIdExist = await Reservation.findOne({ id: id });
+        const isIdExist = await Reservation.findOne({ _id: id });
 
         if (isIdExist) {
-            throw new Error(`Id already exist ${req?.body.id}`);
+            throw new Error(`Id already exist ${req?.body?.id}`);
         }
 
         const isReservationExist = await Reservation.findOne({ reservationDate: req?.body.reservationDate, seat: req?.body.seat });
@@ -66,7 +64,7 @@ export const updateReservation = async (req, res) => {
             ...req.body
         }
 
-        const response = await Reservation.findOneAndUpdate({ id: reservation.id }, reservation, { new: true });
+        const response = await Reservation.findOneAndUpdate({ _id: reservation.id }, reservation, { new: true });
 
         if (!response) {
             throw new Error("Reservation not found");
@@ -82,8 +80,8 @@ export const updateReservation = async (req, res) => {
 export const deleteReservation = async (req, res) => {
     try {
 
-        const id = req?.params?.id;
-        const reservation = await Reservation.findOne({ id: id });
+        const id = req?.params?._id;
+        const reservation = await Reservation.findOne({ _id: id });
         await reservation.deleteOne();
 
         return res.status(200).json({ message: `Reservation deleted successfully ${req?.params?.id}` });

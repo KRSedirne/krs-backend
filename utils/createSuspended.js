@@ -1,16 +1,15 @@
-import Punishment from "../models/punishment";
-export default createPunishment = async ({id,user,type,description,expiareTime}) => {
+import Punishment from "../models/punishment.js";
+export const createSuspended = async ({user,type,description,expireTime}) => {
     try {
         const data={
-            id:id,
             user:user,
             type:type,
             description:description,
-            expiareTime:expiareTime
+            expireTime:expireTime
         };
         const punishment = await Punishment.create(data);
        return punishment;
     }
     catch(e){
-        throw new Error();
+        throw new Error(`Failed to create suspended: ${user}. Error : ${e.message}`);
     }}

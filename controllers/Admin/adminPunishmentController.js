@@ -20,7 +20,7 @@ export const getAllPunishments = async (req, res) => {
 export const getPunishmentDetails = async (req, res) => {
     try {
         const id = req?.params?.id;
-        const response = await Punishment.findOne({ id: id });
+        const response = await Punishment.findOne({ _id: id });
 
         if (!response) {
             throw new Error("punishment not found with this ID");
@@ -35,15 +35,16 @@ export const getPunishmentDetails = async (req, res) => {
 // Create a punishment
 export const createPunishment = async (req, res) => {
     try {
-        req.body.user= req?.user?._id;
+        req.body.user= req?.user?.id;
         const id = generateId();
         req.body.id = id;
 
-        const isIdExist = await Punishment.findOne({ id: id });
+        const isIdExist = await Punishment.findOne({ _id: id });
 
         if (isIdExist) {
             throw new Error(`Id already exist ${req?.body.id}`);
         }
+        
 
         const isPunishmentExist = await Punishment.findOne({ punishmentDate: req?.body.punishmentDate, punishmentType: req?.body.punishmentType });
 
@@ -83,7 +84,7 @@ export const deletePunishment = async (req, res) => {
     try {
 
         const id = req?.params?.id;
-        let punishment = await Punishment.findOne({ id: id });
+        let punishment = await Punishment.findOne({ _id: id });
         await punishment.deleteOne();
 
         return res.status(200).json({ message: `Punishment deleted successfully ${req?.params?.id}` });

@@ -1,5 +1,4 @@
 import Seat from "../models/seat.js";
-import { generateId } from "../utils/idGenerator.js";
 
 // Get all seats
 export const getAllSeats = async (req, res) => {
@@ -20,7 +19,7 @@ export const getAllSeats = async (req, res) => {
 export const getSeatDetails = async (req, res) => {
     try {
         const id = req?.params?.id;
-        const response = await Seat.findOne({ id: id });
+        const response = await Seat.findOne({ _id: id });
 
         if (!response) {
             throw new Error("Seat not found with this ID");
@@ -39,7 +38,7 @@ export const createSeat = async (req, res) => {
         const id = generateId();
         req.body.id = id;
 
-        const isIdExist = await Seat.findOne({ id: id });
+        const isIdExist = await Seat.findOne({ _id: id });
 
         if (isIdExist) {
             throw new Error(`Id already exist ${req?.body.id}`);
@@ -66,7 +65,7 @@ export const updateSeat = async (req, res) => {
             ...req.body
         }
 
-        const response = await Seat.findOneAndUpdate({ id: seat.id }, seat, { new: true });
+        const response = await Seat.findOneAndUpdate({ _id: seat.id }, seat, { new: true });
 
         if (!response) {
             throw new Error("Seat not found with this ID");
@@ -83,7 +82,7 @@ export const deleteSeat = async (req, res) => {
     try {
 
         const id = req?.params?.id;
-        let seat = await Seat.findOne({ id: id });
+        let seat = await Seat.findOne({ _id: id });
         await seat.deleteOne();
 
         return res.status(200).json({ message: `Seat deleted successfully ${req?.params?.id}` });

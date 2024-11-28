@@ -1,14 +1,14 @@
-import Locker from "../models/locker.js";
-import {generateId} from "../utils/idGenerator.js"
+import Locker from "../../models/locker.js";
+import Punishment from "../../models/punishment.js";
 
 //listing all lockers
-export const getAllLockers=async(req,res)=>{
+export const adminGetAllLockers=async(req,res)=>{
     try{
         const response=await Locker.find();
-        // TODO: check if response is empty
         if(response.length===0){
             throw new Error("Lockers not found");
         }
+        
         return res.status(200).json({response});
     }
     catch (e){
@@ -16,11 +16,14 @@ export const getAllLockers=async(req,res)=>{
     }
 }
 //get a specific locker 
-export const getLockerDetails=async(req,res)=>{
+export const adminGetLockerDetails=async(req,res)=>{
     try
     {
-        const id=req?.params?.id;
-        const response= await Locker.findOne({id:id});
+        const id = req?.params?.id;
+        const response= await Locker.findById(id);
+        if (!id) {
+            return res.status(400).json({ message: "Locker ID is required." });
+        }
         if(!response){
             throw new Error(`Couldn\'t find any locker id match with ${id}`);
         }
@@ -31,12 +34,14 @@ export const getLockerDetails=async(req,res)=>{
     }
 }
 //create a new locker
-export const createLocker=async(req,res)=>{
+export const adminCreateLocker=async(req,res)=>{
     try{
-        const id=generateId();
-        req.body.id=id;
-        if(await Locker.findOne({id:id})){
+        if(await Locker.findById(req?.body?.id)){
             throw new Error("ID already exits");
+        }
+        
+        if (await Locker.findOne({ lockerNumber: req?.body?.lockerNumber })) {
+            throw new Error("Locker number has been given to someone else");
         }
         const response=await Locker.create(req?.body);
         return res.status(201).json({response,message:"Locker created successfully"});
@@ -47,11 +52,11 @@ export const createLocker=async(req,res)=>{
     
 }
 //update a locker
-export const updateLocker=async(req,res)=>{
+export const adminUpdateLocker=async(req,res)=>{
         try{
-            const id=req.params.id;
-            const updates=req.body;
-             const updatedLocker=await Locker.findOneAndUpdate(id,updates,{
+            const id=req?.params?.id;
+            const updates=req?.body;
+             const updatedLocker=await Locker.findOneAndUpdate({_id:id},updates,{
                 new:true,
                 runValidators:true
              });
@@ -60,47 +65,63 @@ export const updateLocker=async(req,res)=>{
              }
              res.status(200).json({message:"Locker updated successfully",updatedLocker});
         }catch(e){
-            res.status(400).json({message:"Error updating locker",error});
+            res.status(400).json({message:"Error updating locker",error:e.message});
         }
 }
 //delete a locker
-export const deleteLocker=async(req,res)=>{
+export const adminDeleteLocker=async(req,res)=>{
     try{
-        const id=req.params.id;
-        const deletedLocker=await Locker.findOneAndDelete({id});
-        if(!deleteLocker){
+        const id=req?.params?.id;
+        const deletedLocker=await Locker.findOneAndDelete({_id:id});
+        if(!deletedLocker){
             return res.status(404).json({message:"Locker not found."});
         }
         res.status(200).json({message:"Locker deleted successfully",deleteLocker});
     }
     catch(e){
-        res.status(400).json({message:"Error deleting locker",error});
+        res.status(400).json({message:"Error deleting locker",e});
     }
 }
-export const reserveLocker=async(req,res)=>{
-    try{
-        const id=req.params.id;
-        const user=req.body.user;
-        const locker=await Locker.findOne({id:id});
-        if(!locker){
-            return res.status(404).json({message:"Locker not Found"});
+
+export const adminReserveLocker = async (req, res) => {
+    try {
+        const id = req?.params?.id; 
+        const user = req?.body?.user;
+        const isSuspended=await Punishment.findOne({user:user,type:"locker"})
+
+         const locker = await Locker.findById(id);
+        if (!locker) {
+            return res.status(404).json({ message: "Locker not found" });
         }
-        if(locker.isBooked){
-            return res.status(400).json({message:"This locker already reserved"});
+        if (locker.isBooked) {
+            return res.status(400).json({ message: "This locker is already reserved." });
         }
-        locker.isBooked=true;
-        locker.user=user;
+        const doesUserHaveResLocker = await Locker.findOne({ user: user, isBooked: true });
+
+        if (doesUserHaveResLocker) {
+            return res.status(400).json({ message: "Error: User already has an active reservation." });
+        }
+        if(isSuspended){
+            return res.status(400).json({message:"Error user's request decline. User suspended"});
+        }
+        
+
+        locker.isBooked = true;
+        locker.user = user;
         await locker.save();
-        res.status(200).json({message:`Locker reserved by ${locker.user}`,locker});
+
+        res.status(200).json({ message: `Locker reserved by ${locker.user}`, locker });
+    } catch (e) {
+        console.error("Error:", e);
+        res.status(500).json({ message: "Locker cannot be reserved.", error: e.message });
     }
-    catch(e){
-        res.status(400).json({message:"Error locker cannot be reserved"},e);
-    }
-}
-export const cancelLockerReservation=async(req,res)=>{
+};
+
+
+export const adminCancelLockerReservation=async(req,res)=>{
     try{
-        const id=req.params.id;
-        const locker=await Locker.findOne({id:id});
+        const id=req?.params?.id;
+        const locker=await Locker.findOne({_id:id});
         if(!locker){
             return res.status(404).json({message:"Locker not Found"});
         }

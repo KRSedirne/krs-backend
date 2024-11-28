@@ -1,5 +1,4 @@
-import User from "../models/user.js"
-
+import User from "../../models/user.js";
 
 export const adminCreateUser = async (req, res) => {
     try{
@@ -65,7 +64,7 @@ export const adminUpdateUser = async (req, res) => {
 
 export const adminDeleteUser = async (req, res) => {
     try{
-        const user = await User.findOne({id: req.params.id});
+        const user = await User.findOne({_id: req.params.id});
         if(!user){
             return res.status(404).json({
                 succes: false,
@@ -87,7 +86,7 @@ export const adminDeleteUser = async (req, res) => {
 
 export const adminGetUser = async (req, res) => {
     try{
-        const user = await User.findOne({id: req?.params?.id});
+        const user = await User.findOne({_id: req?.params?.id});
         if(!user){
             return res.status(404).json({
                 succes: false,

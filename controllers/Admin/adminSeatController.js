@@ -20,7 +20,7 @@ export const getAllSeats = async (req, res) => {
 export const getSeatDetails = async (req, res) => {
     try {
         const id = req?.params?.id;
-        const response = await Seat.findOne({ id: id });
+        const response = await Seat.findOne({ _id: id });
 
         if (!response) {
             throw new Error("Seat not found with this ID");
@@ -35,14 +35,12 @@ export const getSeatDetails = async (req, res) => {
 // Create a seat
 export const createSeat = async (req, res) => {
     try {
+        const id=req.body.id;
 
-        const id = generateId();
-        req.body.id = id;
-
-        const isIdExist = await Seat.findOne({ id: id });
+        const isIdExist = await Seat.findOne({ _id: id });
 
         if (isIdExist) {
-            throw new Error(`Id already exist ${req?.body.id}`);
+            throw new Error(`Id already exist ${req?.body?.id}`);
         }
 
         const isSeatExist = await Seat.findOne({ seatNumber: req?.body.seatNumber, salonName: req?.body.salonName, blockName: req?.body.blockName });
@@ -66,7 +64,7 @@ export const updateSeat = async (req, res) => {
             ...req.body
         }
 
-        const response = await Seat.findOneAndUpdate({ id: seat.id }, seat, { new: true });
+        const response = await Seat.findOneAndUpdate({ _id: seat.id }, seat, { new: true });
 
         if (!response) {
             throw new Error("Punishment not found with this ID");
@@ -83,7 +81,7 @@ export const deleteSeat = async (req, res) => {
     try {
 
         const id = req?.params?.id;
-        let seat = await Seat.findOne({ id: id });
+        let seat = await Seat.findOne({ _id: id });
         await seat.deleteOne();
 
         return res.status(200).json({ message: `Seat deleted successfully ${req?.params?.id}` });

@@ -1,10 +1,7 @@
 import mongoose from "mongoose"
 
 const punishmentSchema = new mongoose.Schema({
-    id: {
-        type: Number,
-        required: true
-    },
+    
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "users",

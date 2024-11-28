@@ -1,5 +1,4 @@
 import Reservation from '../models/reservation.js';
-import { generateId } from "../utils/idGenerator.js";
 
 // Get all rezervations
 export const getAllReservations = async (req, res) => {
