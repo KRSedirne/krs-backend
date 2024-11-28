@@ -1,5 +1,4 @@
 import Reservation from '../models/reservation.js';
-import { generateId } from "../utils/idGenerator.js";
 
 // Get all rezervations
 export const getAllReservations = async (req, res) => {
@@ -20,7 +19,7 @@ export const getAllReservations = async (req, res) => {
 export const getReservationDetails = async (req, res) => {
     try {
         const id = req?.params?.id;
-        const response = await Reservation.findOne({ id: id });
+        const response = await Reservation.findOne({ _id: id });
 
         if (!response) {
             throw new Error("Reservation not found with this ID");
@@ -36,10 +35,7 @@ export const getReservationDetails = async (req, res) => {
 export const createReservation = async (req, res) => {
     try {
 
-        const id = generateId();
-        req.body._id = id;
-
-        const isIdExist = await Reservation.findOne({ id: id });
+        const isIdExist = await Reservation.findOne({ _id: id });
 
         if (isIdExist) {
             throw new Error(`Id already exist ${req?.body.id}`);
@@ -83,7 +79,7 @@ export const deleteReservation = async (req, res) => {
     try {
 
         const id = req?.params?.id;
-        const reservation = await Reservation.findOne({ id: id });
+        const reservation = await Reservation.findOne({ _id: id });
         await reservation.deleteOne();
 
         return res.status(200).json({ message: `Reservation deleted successfully ${req?.params?.id}` });

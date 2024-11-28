@@ -1,5 +1,4 @@
 import Seat from "../models/seat.js";
-import { generateId } from "../utils/idGenerator.js";
 
 // Get all seats
 export const getAllSeats = async (req, res) => {
@@ -19,8 +18,7 @@ export const getAllSeats = async (req, res) => {
 // Get a seat
 export const getSeatDetails = async (req, res) => {
     try {
-        const id = req?.params?.id;
-        const response = await Seat.findOne({ id: id });
+        const response = await Seat.findOne({ _id: id });
 
         if (!response) {
             throw new Error("Seat not found with this ID");
@@ -36,8 +34,7 @@ export const getSeatDetails = async (req, res) => {
 export const createSeat = async (req, res) => {
     try {
 
-        const id = generateId();
-        req.body.id = id;
+        req.body.id = _id;
 
         const isIdExist = await Seat.findOne({ id: id });
 

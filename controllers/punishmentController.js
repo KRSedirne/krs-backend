@@ -1,6 +1,4 @@
 import Punishment from "../models/punishment.js";
-import { generateId } from "../utils/idGenerator.js";
-
 // Get all punishments
 export const getAllPunishments = async (req, res) => {
     try {
@@ -19,8 +17,7 @@ export const getAllPunishments = async (req, res) => {
 // Get a punishment
 export const getPunishmentDetails = async (req, res) => {
     try {
-        const id = req?.params?.id;
-        const response = await Punishment.findOne({ id: id });
+        const response = await Punishment.findOne({ _id: id });
 
         if (!response) {
             throw new Error("punishment not found with this ID");
@@ -36,10 +33,8 @@ export const getPunishmentDetails = async (req, res) => {
 export const createPunishment = async (req, res) => {
     try {
         req.body.user= req?.user?._id;
-        const id = generateId();
-        req.body.id = id;
 
-        const isIdExist = await Punishment.findOne({ id: id });
+        const isIdExist = await Punishment.findOne({ _id: id });
 
         if (isIdExist) {
             throw new Error(`Id already exist ${req?.body.id}`);
@@ -83,7 +78,7 @@ export const deletePunishment = async (req, res) => {
     try {
 
         const id = req?.params?.id;
-        let punishment = await Punishment.findOne({ id: id });
+        let punishment = await Punishment.findOne({ _id: id });
         await punishment.deleteOne();
 
         return res.status(200).json({ message: `Punishment deleted successfully ${req?.params?.id}` });
