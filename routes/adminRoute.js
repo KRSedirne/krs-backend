@@ -1,6 +1,6 @@
 import express from 'express';
 import { adminCreateUser, adminDeleteUser, adminGetAllUsers, adminGetUser, adminUpdateUser } from '../controllers/Admin/adminUserController.js';
-import { adminCreateUser } from '../controllers/admin/adminUserController.js';
+import { adminCreateUser } from '../controllers/admin/userController.js';
 import { isAuthenticatedUser, isAdmin } from '../middlewares/authMiddleware.js';
 import { adminGetAllSuspendeds, adminGetSuspendedDetails, adminCreateSuspended, adminUpdateSuspended, adminDeleteSuspended } from '../controllers/admin/suspendedController.js';
 
