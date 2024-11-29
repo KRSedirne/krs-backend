@@ -69,3 +69,47 @@ export const updatePassword = async (req, res) => {
         return res.status(500).json({ message: 'Server error!' });
     }
 }
+
+export const forgetPassword = async (req,res) =>{
+    //TODO: neden süslü parantez kullandık bak
+    const {email}=req.body;
+    try{
+        const user = await User.findOne({email});
+        if(!user){
+            return res.status(404).json({message:"User not found"});
+        }
+
+        const resetLink = `${process.env.FRONTEND_URL}/reset-password/${user._id}`;
+
+        const emailContent = `
+            <p>Merhaba ${user.name},</p>
+            <p>Şifre sıfırlama talebinde bulundunuz. Şifrenizi sıfırlamak için aşağıdaki bağlantıya tıklayın:</p>
+            <a href="${resetLink}">Şifremi Sıfırla</a>
+            <p>Bu talebi siz yapmadıysanız, lütfen bu emaili görmezden gelin.</p>
+        `;
+        await sendMail(user.email, 'Şifre Sıfırlama Talebi', emailContent);
+
+        res.status(200).json({ message: 'Email reset link was sent!' });
+    }catch(error){
+        console.error('Hata:', error);
+        res.status(500).json({ message: 'Something is wrong' });
+    }
+}
+
+export const resetPassword = async (req,res) =>{
+    const {userId,newPassword} =req.body;
+    
+    try{
+        const user = await User.findOne({_id:userId})
+        if(!user){
+            return res.status(404).json({message: "User not found"})
+        }
+        user.password = newPassword;
+        await user.save(); // pre-save şifreyi otomatik olarak hasliyor burda
+
+        res.status(200).json({ message: 'Password was reset succesfully!' });
+    }catch(error){
+        console.error('Hata:', error);
+        res.status(500).json({message:" Something is wrong"})
+    }
+}

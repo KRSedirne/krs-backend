@@ -17,8 +17,7 @@ export const getAllLockers = async (req, res) => {
 //get a specific locker 
 export const getLockerDetails = async (req, res) => {
     try {
-        const id = req?.params?.id;
-        const response = await Locker.findOne({ id: id });
+        const response = await Locker.findOne({ _id: id });
         if (!response) {
             throw new Error(`Couldn\'t find any locker id match with ${id}`);
         }
@@ -31,8 +30,7 @@ export const getLockerDetails = async (req, res) => {
 //create a new locker
 export const createLocker = async (req, res) => {
     try {
-        const id = req?.body?.id;
-        if (await Locker.findOne({ id: id })) {
+        if (await Locker.findOne({ _id: id })) {
             throw new Error("ID already exits");
         }
         const response = await Locker.create(req?.body);
@@ -46,9 +44,8 @@ export const createLocker = async (req, res) => {
 //update a locker
 export const updateLocker = async (req, res) => {
     try {
-        const id = req.params.id;
         const updates = req.body;
-        const updatedLocker = await Locker.findOneAndUpdate(id, updates, {
+        const updatedLocker = await Locker.findOneAndUpdate(_id, updates, {
             new: true,
             runValidators: true
         });
@@ -63,8 +60,7 @@ export const updateLocker = async (req, res) => {
 //delete a locker
 export const deleteLocker = async (req, res) => {
     try {
-        const id = req.params.id;
-        const deletedLocker = await Locker.findOneAndDelete({ id });
+        const deletedLocker = await Locker.findOneAndDelete({ _id });
         if (!deleteLocker) {
             return res.status(404).json({ message: "Locker not found." });
         }
@@ -76,9 +72,9 @@ export const deleteLocker = async (req, res) => {
 }
 export const reserveLocker = async (req, res) => {
     try {
-        const id = req.params.id;
+
         const user = req.body.user;
-        const locker = await Locker.findOne({ id: id });
+        const locker = await Locker.findOne({ _id: id });
         if (!locker) {
             return res.status(404).json({ message: "Locker not Found" });
         }
@@ -96,8 +92,7 @@ export const reserveLocker = async (req, res) => {
 }
 export const cancelLockerReservation = async (req, res) => {
     try {
-        const id = req.params.id;
-        const locker = await Locker.findOne({ id: id });
+        const locker = await Locker.findOne({ _id: id });
         if (!locker) {
             return res.status(404).json({ message: "Locker not Found" });
         }
