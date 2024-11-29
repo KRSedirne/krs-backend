@@ -3,7 +3,7 @@ import ErrorHandler from "../utils/errorHandler.js";
 import catchAsyncErrors from "../middlewares/catchAsyncErrors.js";
 
 // Get all seats
-export const getAllSeats = catchAsyncErrors(async (req, res, next) => {
+export const adminGetAllSeats = catchAsyncErrors(async (req, res, next) => {
     try {
         const response = await Seat.find();
 
@@ -18,7 +18,7 @@ export const getAllSeats = catchAsyncErrors(async (req, res, next) => {
 });
 
 // Get a seat
-export const getSeatDetails = catchAsyncErrors(async (req, res, next) => {
+export const adminGetSeatDetails = catchAsyncErrors(async (req, res, next) => {
     try {
         const response = await Seat.findById(req?.params?.id);
 
@@ -33,7 +33,7 @@ export const getSeatDetails = catchAsyncErrors(async (req, res, next) => {
 });
 
 // Create a seat
-export const createSeat = catchAsyncErrors(async (req, res, next) => {
+export const adminCreateSeat = catchAsyncErrors(async (req, res, next) => {
     try {
 
         const isIdExist = await Seat.findById(req?.params?.id);
@@ -56,7 +56,7 @@ export const createSeat = catchAsyncErrors(async (req, res, next) => {
 });
 
 // Update a seat
-export const updateSeat = catchAsyncErrors(async (req, res, next) => {
+export const adminUpdateSeat = catchAsyncErrors(async (req, res, next) => {
     try {
 
         const response = await Seat.findByIdAndUpdate(req?.params?.id, req?.body, { new: true });
@@ -72,7 +72,7 @@ export const updateSeat = catchAsyncErrors(async (req, res, next) => {
 });
 
 // Delete a seat
-export const deleteSeat = catchAsyncErrors(async (req, res, next) => {
+export const adminDeleteSeat = catchAsyncErrors(async (req, res, next) => {
     try {
         let seat = await Seat.findById(req?.params?.id);
         await seat.deleteOne();

@@ -4,7 +4,7 @@ import catchAsyncErrors from "../middlewares/catchAsyncErrors.js";
 
 
 // Get all rezervations
-export const getAllReservations = catchAsyncErrors(async (req, res, next) => {
+export const adminGetAllReservations = catchAsyncErrors(async (req, res, next) => {
     try {
         const response = await Reservation.find();
 
@@ -19,7 +19,7 @@ export const getAllReservations = catchAsyncErrors(async (req, res, next) => {
 });
 
 // Get a rezervation
-export const getReservationDetails = catchAsyncErrors(async (req, res, next) => {
+export const adminGetReservationDetails = catchAsyncErrors(async (req, res, next) => {
     try {
 
         const response = await Reservation.findById(req?.params?.id);
@@ -35,7 +35,7 @@ export const getReservationDetails = catchAsyncErrors(async (req, res, next) => 
 });
 
 // Create a rezervation
-export const createReservation = catchAsyncErrors(async (req, res, next) => {
+export const adminCreateReservation = catchAsyncErrors(async (req, res, next) => {
     try {
 
         req.body.user = req?.user?.id;
@@ -74,7 +74,7 @@ export const createReservation = catchAsyncErrors(async (req, res, next) => {
 });
 
 // Update a rezervation
-export const updateReservation = catchAsyncErrors(async (req, res, next) => {
+export const adminUpdateReservation = catchAsyncErrors(async (req, res, next) => {
     try {
 
         let reservation = await Reservation.findById(req?.params?.id);
@@ -96,7 +96,7 @@ export const updateReservation = catchAsyncErrors(async (req, res, next) => {
 });
 
 // Delete a rezervation
-export const deleteReservation = catchAsyncErrors(async (req, res, next) => {
+export const adminDeleteReservation = catchAsyncErrors(async (req, res, next) => {
     try {
 
         let reservation = await Reservation.findById(req?.params.id);

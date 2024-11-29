@@ -21,19 +21,30 @@ const reservationSchema = new mongoose.Schema({
     },
     outReason: [
         {
-            description: {
+            type: {
                 type: String,
-                required: [true, "Description is required"]
+                enum: ["short", "long"],
+                required: [true, "Type is required"]
             },
+
             date: {
                 type: Date,
                 required: [true, "Date is required"]
+            },
+
+            time: {
+                type: Number,
+                required: [true, "Time is required"]
             }
         }
     ],
     isCheckIn: {
         type: Boolean,
         default: false
+    },
+    expireTime: {
+        type: Date,
+        default: 0
     }
 
 

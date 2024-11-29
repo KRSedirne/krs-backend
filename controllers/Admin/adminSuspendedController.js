@@ -3,7 +3,7 @@ import ErrorHandler from "../utils/errorHandler.js";
 import catchAsyncErrors from "../middlewares/catchAsyncErrors.js";
 
 // Get all suspendeds
-export const getAllSuspendeds = catchAsyncErrors(async (req, res, next) => {
+export const adminGetAllSuspendeds = catchAsyncErrors(async (req, res, next) => {
     try {
         const response = await Suspended.find();
 
@@ -18,7 +18,7 @@ export const getAllSuspendeds = catchAsyncErrors(async (req, res, next) => {
 });
 
 // Get a suspended
-export const getSuspendedDetails = catchAsyncErrors(async (req, res, next) => {
+export const adminGetSuspendedDetails = catchAsyncErrors(async (req, res, next) => {
     try {
 
         const suspended = await Suspended.findById(req?.params?.id);
@@ -34,7 +34,7 @@ export const getSuspendedDetails = catchAsyncErrors(async (req, res, next) => {
 });
 
 // Create a suspended
-export const createSuspended = catchAsyncErrors(async (req, res, next) => {
+export const adminCreateSuspended = catchAsyncErrors(async (req, res, next) => {
     try {
         req.body.user = req?.user?._id;
 
@@ -58,7 +58,7 @@ export const createSuspended = catchAsyncErrors(async (req, res, next) => {
 });
 
 // Update a suspended
-export const updateSuspended = catchAsyncErrors(async (req, res, next) => {
+export const adminUpdateSuspended = catchAsyncErrors(async (req, res, next) => {
     try {
 
         let suspended = await Suspended.findById(req?.params?.id);
@@ -80,7 +80,7 @@ export const updateSuspended = catchAsyncErrors(async (req, res, next) => {
 });
 
 // Delete a suspended
-export const deleteSuspended = catchAsyncErrors(async (req, res, next) => {
+export const adminDeleteSuspended = catchAsyncErrors(async (req, res, next) => {
     try {
         let suspended = await Suspended.findById(req?.params?.id);
         await suspended.deleteOne();
@@ -92,7 +92,7 @@ export const deleteSuspended = catchAsyncErrors(async (req, res, next) => {
 });
 
 // suspended süresi doldu mu diye kontrol et
-export const checkSuspended = catchAsyncErrors(async (req, res, next) => {
+export const adminCheckSuspended = catchAsyncErrors(async (req, res, next) => {
 
     try {
 
