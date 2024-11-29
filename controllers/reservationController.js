@@ -21,9 +21,6 @@ export const getAllReservations = catchAsyncErrors(async (req, res, next) => {
 // Get a reservation
 export const getReservationDetails = catchAsyncErrors(async (req, res, next) => {
     try {
-        const id = req?.params?.id;
-        const response = await Reservation.findOne({ _id: id });
-
         const response = await Reservation.findById(req?.params?.id);
 
         if (!response) {
@@ -40,7 +37,6 @@ export const getReservationDetails = catchAsyncErrors(async (req, res, next) => 
 export const createReservation = catchAsyncErrors(async (req, res, next) => {
     try {
 
-        const isIdExist = await Reservation.findOne({ _id: id });
         req.body.user = req?.user?.id;
         req.body.seat = req?.body?.seat;
 
