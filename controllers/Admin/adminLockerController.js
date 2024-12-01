@@ -1,5 +1,6 @@
 import Locker from "../../models/locker.js";
 import Punishment from "../../models/punishment.js";
+import User from "../../models/user.js";
 
 //listing all lockers
 export const adminGetAllLockers=async(req,res)=>{
@@ -86,7 +87,8 @@ export const adminDeleteLocker=async(req,res)=>{
 export const adminReserveLocker = async (req, res) => {
     try {
         const id = req?.params?.id; 
-        const user = req?.body?.user;
+        const userEmail = req?.body?.email;
+        const user=await User.findOne({email:userEmail});
         const isSuspended=await Punishment.findOne({user:user,type:"locker"})
 
          const locker = await Locker.findById(id);
@@ -135,5 +137,23 @@ export const adminCancelLockerReservation=async(req,res)=>{
     }
     catch(e){
         res.status(400).json({message:"Error locker reservation not cancelled."},e);
+    }
+}
+export const adminExpandReservation=async(req,res)=>
+{
+    try{
+        const id=req?.params?.id;
+        const locker=await Locker.findOne({_id:id});
+        if(!locker){
+            return res.status(404).json({message:"Locker not Found"});
+        }
+        if(!locker.isBooked){
+            return res.status(400).json({message:"This locker isn't reserved. "});
+        }
+        await locker.save();
+        res.status(200).json({message:"Locker reservation date expanded"});
+    }
+    catch(e){
+        res.status(400).json({message:"Error reservation cannot be expanded"});
     }
 }

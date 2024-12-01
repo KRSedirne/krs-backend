@@ -1,4 +1,4 @@
-import { adminGetAllLockers,adminGetLockerDetails,adminCreateLocker,adminUpdateLocker,adminDeleteLocker,adminReserveLocker,adminCancelLockerReservation} from "../controllers/admin/adminLockerController.js";
+import { adminGetAllLockers,adminGetLockerDetails,adminCreateLocker,adminUpdateLocker,adminDeleteLocker,adminReserveLocker,adminCancelLockerReservation,adminExpandReservation} from "../controllers/admin/adminLockerController.js";
 import { adminGetAllUsers, adminGetUser, adminCreateUser, adminUpdateUser, adminDeleteUser } from '../controllers/admin/adminUserController.js';
 import { isAuthenticatedUser, isAdmin } from '../middlewares/authMiddleware.js';
 
@@ -13,6 +13,7 @@ router.route("/locker/update/:id").put(isAuthenticatedUser,isAdmin,adminUpdateLo
 router.route("/locker/delete/:id").delete(isAuthenticatedUser,isAdmin,adminDeleteLocker);
 router.route("/locker/reservation/:id").put(isAuthenticatedUser,isAdmin,adminReserveLocker);
 router.route("/locker/reservation/cancel/:id").put(isAuthenticatedUser,isAdmin,adminCancelLockerReservation);
+router.route("/locker/reservation/expandDate/:id").put(isAuthenticatedUser,isAdmin,adminExpandReservation);
 
 
 
