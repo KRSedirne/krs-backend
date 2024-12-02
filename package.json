@@ -23,6 +23,7 @@
     "mongoose": "^8.7.3",
     "mongose": "^0.0.2-security",
     "morgan": "^1.10.0",
+    "node-cron": "^3.0.3",
     "nodemailer": "^6.9.16",
     "qrcode": "^1.5.4",
     "redis": "^4.7.0"

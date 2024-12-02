@@ -1,14 +1,11 @@
-import { getAllLockers, getLockerDetails, createLocker, updateLocker, deleteLocker, reserveLocker, cancelLockerReservation } from "../controllers/lockerController.js";
+import { getAllLockers, getLockerDetails, reserveLocker } from "../controllers/lockerController.js";
+import { isAuthenticatedUser } from "../middlewares/authMiddleware.js";
 import express from "express";
 
 const router = express.Router();
 
-router.route("/lockers").get(getAllLockers);
-router.route("/locker/:id").get(getLockerDetails);
-router.route("/locker/create").post(createLocker);
-router.route("/locker/update/:id").put(updateLocker);
-router.route("/locker/delete/:id").delete(deleteLocker);
-router.route("/locker/reservation/:id").put(reserveLocker);
-router.route("/locker/reservation/cancellation/:id").put(cancelLockerReservation);
+router.route("/lockers").get(isAuthenticatedUser, getAllLockers);
+router.route("/locker/:id").get(isAuthenticatedUser, getLockerDetails);
+router.route("/locker/reservation/:id").put(isAuthenticatedUser, reserveLocker);
 
 export default router;

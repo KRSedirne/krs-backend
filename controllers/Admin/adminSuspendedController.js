@@ -1,8 +1,8 @@
-import Suspended from "../models/suspended.js";
-import ErrorHandler from "../utils/errorHandler.js";
-import catchAsyncErrors from "../middlewares/catchAsyncErrors.js";
+import Suspended from "../../models/suspended.js";
+import ErrorHandler from "../../utils/errorHandler.js";
+import catchAsyncErrors from "../../middlewares/catchAsyncErrors.js";
 
-// Get all suspendeds
+// Admin Get all suspendeds
 export const adminGetAllSuspendeds = catchAsyncErrors(async (req, res, next) => {
     try {
         const response = await Suspended.find();
@@ -17,7 +17,7 @@ export const adminGetAllSuspendeds = catchAsyncErrors(async (req, res, next) => 
     }
 });
 
-// Get a suspended
+// Admin Get a suspended
 export const adminGetSuspendedDetails = catchAsyncErrors(async (req, res, next) => {
     try {
 
@@ -33,7 +33,7 @@ export const adminGetSuspendedDetails = catchAsyncErrors(async (req, res, next) 
     }
 });
 
-// Create a suspended
+// Admin Create a suspended
 export const adminCreateSuspended = catchAsyncErrors(async (req, res, next) => {
     try {
         req.body.user = req?.user?._id;
@@ -57,7 +57,7 @@ export const adminCreateSuspended = catchAsyncErrors(async (req, res, next) => {
     }
 });
 
-// Update a suspended
+// Admin Update a suspended
 export const adminUpdateSuspended = catchAsyncErrors(async (req, res, next) => {
     try {
 
@@ -79,7 +79,7 @@ export const adminUpdateSuspended = catchAsyncErrors(async (req, res, next) => {
     }
 });
 
-// Delete a suspended
+//  Admin Delete a suspended
 export const adminDeleteSuspended = catchAsyncErrors(async (req, res, next) => {
     try {
         let suspended = await Suspended.findById(req?.params?.id);
@@ -106,7 +106,8 @@ export const adminCheckSuspended = catchAsyncErrors(async (req, res, next) => {
         let suspendedDate = new Date(suspended?.suspendedDate);
 
         if (currentDate > suspendedDate) {
-            return res.status(200).json({ message: "Suspended period is over" });
+            await suspended.deleteOne();
+            return res.status(200).json({ message: "Suspended period is over, user suspended deleted successfully" });
         } else {
             return res.status(200).json({ message: "Suspended period is not over" });
         }

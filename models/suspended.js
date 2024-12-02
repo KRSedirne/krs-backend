@@ -21,4 +21,4 @@ const suspendedSchema = new mongoose.Schema({
     }
 })
 
-export default mongoose.model("Punishement", suspendedSchema);
+export default mongoose.model("Suspendeds", suspendedSchema);

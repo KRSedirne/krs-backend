@@ -1,6 +1,6 @@
-import Reservation from '../models/reservation.js';
-import ErrorHandler from "../utils/errorHandler.js";
-import catchAsyncErrors from "../middlewares/catchAsyncErrors.js";
+import Reservation from '../../models/reservation.js';
+import ErrorHandler from "../../utils/errorHandler.js";
+import catchAsyncErrors from "../../middlewares/catchAsyncErrors.js";
 
 
 // Get all rezervations

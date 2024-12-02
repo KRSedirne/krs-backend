@@ -216,3 +216,26 @@ export const getQRCode = catchAsyncErrors(async (req, res, next) => {
         return next(new ErrorHandler("Something is gone wrong...", 500));
     }
 });
+
+// Remain Reservation
+export const remainReservation = catchAsyncErrors(async (req, res, next) => {
+    try {
+
+        const response = await Reservation.findById(req?.params?.id);
+
+        if (!response) {
+            return next(new ErrorHandler("Reservation not found", 404));
+        }
+
+        if (!response?.isCheckIn) {
+            return next(new ErrorHandler("User is not in the library", 400));
+        }
+
+        response.expireTime = (response?.expireTime + (req?.body?.time * 60 * 1000));
+
+        return res.status(200).json({ response, message: `Reservation remain successfully, ${req?.body?.time / 60} hour` });
+
+    } catch (error) {
+        return next(new ErrorHandler("Reservation cannot be remain ,something is gone wrong...", 500));
+    }
+});

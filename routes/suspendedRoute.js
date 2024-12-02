@@ -1,13 +1,13 @@
 import express from 'express';
 import { getAllSuspendeds, getSuspendedDetails, createSuspended, updateSuspended, deleteSuspended } from '../controllers/suspendedController.js';
-import authMiddleware from "../middlewares/authMiddleware.js";
+import { isAuthenticatedUser } from "../middlewares/authMiddleware.js";
 
 const router = express.Router();
 
-router.route('/suspendeds').get(authMiddleware, getAllSuspendeds)
-router.route('/suspended/:id').get(authMiddleware, getSuspendedDetails)
-router.route('/suspended/create').post(authMiddleware, createSuspended)
-router.route('/suspended/update/:id').put(authMiddleware, updateSuspended)
-router.route('/suspended/delete/:id').delete(authMiddleware, deleteSuspended)
+router.route('/suspendeds').get(isAuthenticatedUser, getAllSuspendeds)
+router.route('/suspended/:id').get(isAuthenticatedUser, getSuspendedDetails)
+router.route('/suspended/create').post(isAuthenticatedUser, createSuspended)
+router.route('/suspended/update/:id').put(isAuthenticatedUser, updateSuspended)
+router.route('/suspended/delete/:id').delete(isAuthenticatedUser, deleteSuspended)
 
 export default router;

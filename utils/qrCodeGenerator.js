@@ -1,14 +1,16 @@
 import QRCode from "qrcode";
 import Reservation from "../models/reservation";
- 
-export const generateQr = async (req, res) => {
+import ErrorHandler from "./errorHandler.js";
+import catchAsyncErrors from "../middlewares/catchAsyncErrors.js";
+
+export const generateQr = catchAsyncErrors(async (req, res) => {
     const { userId, reservationId } = req.body;
 
     try {
 
         const reservation = await Reservation.findOne({ _id: reservationId, userId });
         if (!reservation) {
-            return res.status(404).json({ message: 'Rezervasyon bulunamadı!' });
+            return next(new ErrorHandler('Reservation not found!', 404));
         }
 
         const qrData = {
@@ -23,13 +25,12 @@ export const generateQr = async (req, res) => {
 
         res.status(200).json({ message: "QR code generated succesfuly!", qrCode });
     } catch (error) {
-        console.error('QR kod oluşturulurken hata:', error);
-        res.status(500).json({ message: "QR code couldn't be generated ." });
+        return next(new ErrorHandler('QR code generation failed!', 500));
     }
-};
+});
 
-export const isCheckingQr = async (req, res) => {
-    const { qrString } = req.body; 
+export const isCheckingQr = catchAsyncErrors(async (req, res) => {
+    const { qrString } = req.body;
 
     try {
         const qrData = JSON.parse(qrString);
@@ -37,11 +38,11 @@ export const isCheckingQr = async (req, res) => {
 
         const reservation = await Reservation.findOne({ _id: reservationId, userId });
         if (!reservation) {
-            return res.status(404).json({ message: 'Reservation not found!' });
+            return next(new ErrorHandler('Reservation not found!', 404));
         }
 
         if (reservation.isCheckIn) {
-            return res.status(400).json({ message: 'Reservation already exist!' });
+            return next(new ErrorHandler('Reservation already approved!', 409));
         }
 
         reservation.isCheckIn = true;
@@ -49,18 +50,17 @@ export const isCheckingQr = async (req, res) => {
 
         res.status(200).json({ message: 'Reservation approved!' });
 
-        setTimeout(async () => {
-            const updateReservation = await Reservation.findOne({ _id: reservationId });
-            if (updateReservation && updateReservation.isCheckIn) {
-                updateReservation.isCheckIn = false;
-                await updateReservation.save();
-                console.log(`Reservation ${reservationId} canceled.`);
-            }
-        }, 1.5 * 60 * 60 * 1000);
+        // setTimeout(async () => {
+        //     const updateReservation = await Reservation.findOne({ _id: reservationId });
+        //     if (updateReservation && updateReservation.isCheckIn) {
+        //         updateReservation.isCheckIn = false;
+        //         await updateReservation.save();
+        //         console.log(`Reservation ${reservationId} canceled.`);
+        //     }
+        // }, 1.5 * 60 * 60 * 1000);
     } catch (error) {
-        console.error('QR code verification error:', error);
-        res.status(500).json({ message: 'QR code verification is not success.' });
+        return next(new ErrorHandler('QR code validation failed!', 500));
     }
-};
+});
 
 

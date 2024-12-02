@@ -1,6 +1,6 @@
-import Seat from "../models/seat.js";
-import ErrorHandler from "../utils/errorHandler.js";
-import catchAsyncErrors from "../middlewares/catchAsyncErrors.js";
+import Seat from "../../models/seat.js";
+import ErrorHandler from "../../utils/errorHandler.js";
+import catchAsyncErrors from "../../middlewares/catchAsyncErrors.js";
 
 // Get all seats
 export const adminGetAllSeats = catchAsyncErrors(async (req, res, next) => {

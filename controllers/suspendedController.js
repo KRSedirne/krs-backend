@@ -106,6 +106,7 @@ export const checkSuspended = catchAsyncErrors(async (req, res, next) => {
         let suspendedDate = new Date(suspended?.suspendedDate);
 
         if (currentDate > suspendedDate) {
+            await suspended.deleteOne();
             return res.status(200).json({ message: "Suspended period is over" });
         } else {
             return res.status(200).json({ message: "Suspended period is not over" });
