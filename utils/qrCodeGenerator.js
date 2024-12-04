@@ -6,22 +6,11 @@ import catchAsyncErrors from "../middlewares/catchAsyncErrors.js";
 export const generateQr = async (userId) => {
 
     try {
-
-        // const reservation = await Reservation.findOne({ _id: reservationId, userId });
-        // if (!reservation) {
-        //     return res.status(404).json({ message: 'Reservation not found!' });
-        // }
-
         const qrData = {
             userId: userId
         };
-
         const qrCode = await QRCode.toDataURL(JSON.stringify(qrData));
 
-        // reservation.qrCode = qrCode;
-        // await reservation.save();
-
-        // res.status(200).json({ message: "QR code generated succesfuly!", qrCode });
         return qrCode;
     } catch (error) {
         return next(new ErrorHandler('QR code generation failed!', 500));

@@ -39,6 +39,8 @@ export const getReservationDetails = catchAsyncErrors(async (req, res, next) => 
 export const createReservation = catchAsyncErrors(async (req, res, next) => {
     try {
 
+        req.body.user = req?.user?.id;
+
         // user birden fazla reservation yapamaz, kontrol et
         const isUserExist = await Reservation.findOne({ user: req?.body.user });
 
@@ -63,11 +65,9 @@ export const createReservation = catchAsyncErrors(async (req, res, next) => {
             return next(new ErrorHandler("Reservation already exist", 409));
         }
 
-        console.log(generateQr(req?.body?.user));
-
         const reservation = {
             ...req?.body,
-            qrCode: generateQr(req?.body?.user),
+            qrCode: await generateQr(req?.body?.user),
             expireTime: new Date(Date.now() + 90 * 60 * 1000)
         }
 

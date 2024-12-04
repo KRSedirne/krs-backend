@@ -65,7 +65,7 @@ export const adminCreateReservation = catchAsyncErrors(async (req, res, next) =>
 
         const reservation = {
             ...req?.body,
-            qrCode: generateQr(req?.body?.user),
+            qrCode: await generateQr(req?.body?.user),
             expireTime: new Date(Date.now() + 90 * 60 * 1000)
         }
 
