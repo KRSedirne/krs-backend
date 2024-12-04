@@ -33,30 +33,6 @@ export const getSuspendedDetails = catchAsyncErrors(async (req, res, next) => {
     }
 });
 
-// Create a suspended
-export const createSuspended = catchAsyncErrors(async (req, res, next) => {
-    try {
-        req.body.user = req?.user?._id;
-
-        const isIdExist = await Suspended.findById(req?.params?.id);
-
-        if (isIdExist) {
-            return next(new ErrorHandler(`Id already exist ${req?.body.id}`, 409));
-        }
-
-        const isSuspendedExist = await Suspended.findOne({ suspendedDate: req?.body.suspendedDate, suspendedType: req?.body.suspendedType });
-
-        if (isSuspendedExist) {
-            return next(new ErrorHandler("Suspended already exist", 409));
-        }
-
-        const response = await Suspended.create(req?.body);
-        return res.status(200).json({ response, message: "Suspended created successfully" });
-    } catch (error) {
-        return next(new ErrorHandler("Suspended couldn't create, something is gone wrong...", 500));
-    }
-});
-
 // Update a suspended
 export const updateSuspended = catchAsyncErrors(async (req, res, next) => {
     try {
@@ -91,8 +67,8 @@ export const deleteSuspended = catchAsyncErrors(async (req, res, next) => {
     }
 });
 
-// suspended süresi doldu mu diye kontrol et
-export const checkSuspended = catchAsyncErrors(async (req, res, next) => {
+// Check suspended time is expired or not
+export const manuallyCheckSuspended = catchAsyncErrors(async (req, res, next) => {
 
     try {
 
@@ -103,9 +79,9 @@ export const checkSuspended = catchAsyncErrors(async (req, res, next) => {
         }
 
         let currentDate = new Date();
-        let suspendedDate = new Date(suspended?.suspendedDate);
+        let expireTime = new Date(suspended?.expireTime);
 
-        if (currentDate > suspendedDate) {
+        if (currentDate > expireTime) {
             await suspended.deleteOne();
             return res.status(200).json({ message: "Suspended period is over" });
         } else {

@@ -1,6 +1,8 @@
 import Reservation from '../models/reservation.js';
 import ErrorHandler from "../utils/errorHandler.js";
 import catchAsyncErrors from "../middlewares/catchAsyncErrors.js";
+import Suspended from '../models/suspended.js';
+import { generateQr } from '../utils/qrCodeGenerator.js';
 
 
 // Get all reservations
@@ -37,20 +39,17 @@ export const getReservationDetails = catchAsyncErrors(async (req, res, next) => 
 export const createReservation = catchAsyncErrors(async (req, res, next) => {
     try {
 
-        req.body.user = req?.user?.id;
-        req.body.seat = req?.body?.seat;
-
-        const isIdExist = await Reservation.findById(req?.params?.id);
-
-        if (isIdExist) {
-            return next(new ErrorHandler(`Id already exist ${req?.body.id}`, 409));
-        }
-
         // user birden fazla reservation yapamaz, kontrol et
         const isUserExist = await Reservation.findOne({ user: req?.body.user });
 
         if (isUserExist) {
             return next(new ErrorHandler(`This user already has one reservation`, 409));
+        }
+
+        const isUserSuspended = await Suspended.findOne({ user: req?.body.user });
+
+        if (isUserSuspended) {
+            return next(new ErrorHandler(`This user is suspended`, 401));
         }
 
         const isReservationExist = await Reservation.findOne({ reservationDate: req?.body.reservationDate, seat: req?.body.seat });
@@ -64,13 +63,15 @@ export const createReservation = catchAsyncErrors(async (req, res, next) => {
             return next(new ErrorHandler("Reservation already exist", 409));
         }
 
+        console.log(generateQr(req?.body?.user));
+
         const reservation = {
             ...req?.body,
-            qrCode: Math.floor(100000 + Math.random() * 900000),
+            qrCode: generateQr(req?.body?.user),
             expireTime: new Date(Date.now() + 90 * 60 * 1000)
         }
 
-        const response = await reservationUseCases.createReservation(reservation);
+        const response = await Reservation.create(reservation);
         return res.status(201).json({ response, message: "Reservation created successfully" });
 
     } catch (error) {
@@ -117,7 +118,7 @@ export const deleteReservation = catchAsyncErrors(async (req, res, next) => {
 export const cancelReservation = catchAsyncErrors(async (req, res, next) => {
     try {
 
-        let reservation = await Reservation.findById(req?.params.id);
+        let reservation = await Reservation.findById(req?.params?.id);
 
         if ((reservation.reservationDate - (24 * 60 * 60 * 1000)) < new Date()) {
             return next(new ErrorHandler("Reservation cannot be delete last day", 400));
@@ -210,7 +211,7 @@ export const getQRCode = catchAsyncErrors(async (req, res, next) => {
             return next(new ErrorHandler("Reservation expired", 400));
         }
 
-        return res.status(200).json({ response: response?.qrCode });
+        return res.status(200).json({ qrCode: response?.qrCode });
 
     } catch (error) {
         return next(new ErrorHandler("Something is gone wrong...", 500));

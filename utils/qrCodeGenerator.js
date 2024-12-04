@@ -1,33 +1,32 @@
 import QRCode from "qrcode";
-import Reservation from "../models/reservation";
+import Reservation from "../models/reservation.js";
 import ErrorHandler from "./errorHandler.js";
 import catchAsyncErrors from "../middlewares/catchAsyncErrors.js";
 
-export const generateQr = catchAsyncErrors(async (req, res) => {
-    const { userId, reservationId } = req.body;
+export const generateQr = async (userId) => {
 
     try {
 
-        const reservation = await Reservation.findOne({ _id: reservationId, userId });
-        if (!reservation) {
-            return next(new ErrorHandler('Reservation not found!', 404));
-        }
+        // const reservation = await Reservation.findOne({ _id: reservationId, userId });
+        // if (!reservation) {
+        //     return res.status(404).json({ message: 'Reservation not found!' });
+        // }
 
         const qrData = {
-            reservationId: reservation._id,
-            userId: reservation.user._id,
+            userId: userId
         };
 
         const qrCode = await QRCode.toDataURL(JSON.stringify(qrData));
 
-        reservation.qrCode = qrCode;
-        await reservation.save();
+        // reservation.qrCode = qrCode;
+        // await reservation.save();
 
-        res.status(200).json({ message: "QR code generated succesfuly!", qrCode });
+        // res.status(200).json({ message: "QR code generated succesfuly!", qrCode });
+        return qrCode;
     } catch (error) {
         return next(new ErrorHandler('QR code generation failed!', 500));
     }
-});
+};
 
 export const isCheckingQr = catchAsyncErrors(async (req, res) => {
     const { qrString } = req.body;

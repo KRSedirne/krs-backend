@@ -14,6 +14,7 @@ import adminRoute from "./routes/adminRoute.js";
 import swagger from "./configs/swagger.js";
 import cron from "node-cron";
 import { autoCancelLockerReservation, autoCheckReservation, autoCheckSuspendedUsers } from "./utils/autoCheckerFunctions.js";
+import errorMiddleware from "./middlewares/errors.js";
 
 
 const app = express();
@@ -35,6 +36,9 @@ app.use("/api/v1", userRoute);
 app.use("/api/v1", authRoute);
 app.use("/api/v1", lockerRoute);
 app.use("/api/v1/admin", adminRoute);
+
+// Use middlewares
+app.use(errorMiddleware);
 
 // schedule tasks to be run on the server
 cron.schedule('0 0 * * *', autoCancelLockerReservation); // every day at 00:00

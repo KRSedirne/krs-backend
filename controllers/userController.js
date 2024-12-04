@@ -32,7 +32,7 @@ export const getAllUsers = catchAsyncErrors(async (req, res, next) => {
 });
 
 export const updatePassword = catchAsyncErrors(async (req, res, next) => {
-    const { oldPassword, newPassword } = req.body;
+    const { oldPassword, newPassword } = req?.body;
 
     if (!oldPassword || !newPassword) {
         return next(new ErrorHandler('Please enter old password and new password', 400));

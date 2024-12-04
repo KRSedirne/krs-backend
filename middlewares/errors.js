@@ -1,5 +1,5 @@
-import ErrorHandler from "../utilities/errorHandler.js";
-import configs from "../config/config.js";
+import ErrorHandler from "../utils/errorHandler.js";
+import globalConfig from "../configs/globalConfig.js";
 
 export default (err, req, res, next) => {
     let error = {
@@ -43,7 +43,7 @@ export default (err, req, res, next) => {
         error = new ErrorHandler(message, 400);
     }
 
-    if (configs.environment === "DEVELOPMENT") {
+    if (globalConfig.environment === "DEVELOPMENT") {
         res.status(error.statusCode).json({
             message: error.message,
             error: err,
@@ -51,10 +51,9 @@ export default (err, req, res, next) => {
         })
     }
 
-    if (configs.environment === "PRODUCTION") {
+    if (globalConfig.environment === "PRODUCTION") {
         res.status(error.statusCode).json({
             message: error.message
         })
     }
-
 }

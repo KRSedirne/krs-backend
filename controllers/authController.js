@@ -52,12 +52,11 @@ export const login = catchAsyncErrors(async (req, res, next) => {
     // Generate JWT token
     const token = jwt.sign(
       { id: user._id, email: user.email },
-      globalConfig.jwtKey,
+      globalConfig.jwtSecret,
       { expiresIn: '1d' }
     );
 
     res.status(200).cookie('token', token, { httpOnly: true }).json({ token, user: { _id: user._id, email: user.email } });
-    // res.json({ token, user: { id: user._id, email: user.email } });
   } catch (error) {
     return next(new ErrorHandler(`user couldn't logged in. ${error.message}`, 400));
   }
@@ -67,7 +66,7 @@ export const logout = catchAsyncErrors(async (req, res, next) => {
   try {
     const token = req.cookies.token;
     if (!token) {
-      return next(new ErrorHandler('You are not logged in, token expired or already logged out', 401));
+      return next(new ErrorHandler('You are not logged in, token expired or already logged out once', 401));
     }
     activeTokens.delete(token);
     res.clearCookie('token', {

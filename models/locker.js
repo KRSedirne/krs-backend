@@ -6,7 +6,7 @@ const lockerSchema = new mongoose.Schema({
         required: [true, "Locker Number is required"]
     },
     user: {
-        type: mongoose.Schema.Types.Number,
+        type: mongoose.Schema.Types.ObjectId,
         ref: "User",
     },
     isBooked: {

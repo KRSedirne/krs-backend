@@ -58,7 +58,6 @@ export const adminUpdateLocker = catchAsyncErrors(async (req, res, next) => {
         const updates = req?.body;
         const updatedLocker = await Locker.findOneAndUpdate({ _id: id }, updates, {
             new: true,
-            runValidators: true
         });
         if (!updatedLocker) {
             return next(new ErrorHandler("Locker not found", 404));
@@ -121,7 +120,7 @@ export const adminReserveLocker = catchAsyncErrors(async (req, res, next) => {
 export const adminCancelLockerReservation = catchAsyncErrors(async (req, res, next) => {
     try {
         const id = req?.params?.id;
-        const locker = await Locker.findOne({ _id: id });
+        const locker = await Locker.findById(id);
         if (!locker) {
             return next(new ErrorHandler("Locker not found", 404));
         }

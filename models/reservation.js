@@ -17,24 +17,25 @@ const reservationSchema = new mongoose.Schema({
     },
     qrCode: {
         type: String,
-        required: [true, "QR Code is required"]
+        required: [true, "QR Code is required"],
+        default: ""
     },
     outReason: [
         {
             type: {
                 type: String,
                 enum: ["short", "long"],
-                required: [true, "Type is required"]
+                // required: [true, "Type is required"]
             },
 
             date: {
                 type: Date,
-                required: [true, "Date is required"]
+                // required: [true, "Date is required"]
             },
 
             time: {
                 type: Number,
-                required: [true, "Time is required"]
+                // required: [true, "Time is required"]
             }
         }
     ],
@@ -44,9 +45,8 @@ const reservationSchema = new mongoose.Schema({
     },
     expireTime: {
         type: Date,
-        default: 0
+        default: new Date()
     }
-
 
 }, { timestamps: true })
 

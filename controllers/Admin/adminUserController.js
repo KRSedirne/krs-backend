@@ -56,7 +56,7 @@ export const adminUpdateUser = catchAsyncErrors(async (req, res, next) => {
 
 export const adminDeleteUser = catchAsyncErrors(async (req, res, next) => {
     try {
-        const user = await User.findOne({ id: req.params.id });
+        const user = await User.findById(req?.params?.id);
         if (!user) {
             return next(new ErrorHandler("User not found", 404));
         }
@@ -72,7 +72,7 @@ export const adminDeleteUser = catchAsyncErrors(async (req, res, next) => {
 
 export const adminGetUser = catchAsyncErrors(async (req, res, next) => {
     try {
-        const user = await User.findOne({ id: req?.params?.id });
+        const user = await User.findById(req?.params?.id);
         if (!user) {
             return next(new ErrorHandler("User not found", 404));
         }
