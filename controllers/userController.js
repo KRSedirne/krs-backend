@@ -21,7 +21,9 @@ export const getUser = catchAsyncErrors(async (req, res, next) => {
 export const getAllUsers = catchAsyncErrors(async (req, res, next) => {
     try {
         const users = await User.find();
-        // burada users.length === 0 kontolu olmalı
+        if (users.length === 0) {
+            return next(new ErrorHandler("No users found", 404));
+        }
         res.status(200).json({
             succes: true,
             data: users
@@ -38,7 +40,8 @@ export const updatePassword = catchAsyncErrors(async (req, res, next) => {
         return next(new ErrorHandler('Please enter old password and new password', 400));
     }
     try {
-        const userId = req?.user?._id;
+        // const userId = req?.user?._id;
+        const userId = "674f540c1737f9e77d72ed69";
 
         const user = await User.findOne({ _id: userId }).select('+password');
         if (!user) {
@@ -60,5 +63,24 @@ export const updatePassword = catchAsyncErrors(async (req, res, next) => {
         return res.status(200).json({ message: 'Password updated succesfully' });
     } catch (error) {
         return next(new ErrorHandler('Password could not be updated', 500));
+    }
+});
+
+export const getUserProfile = catchAsyncErrors(async (req, res, next) => {
+
+    const id = "674f540c1737f9e77d72ed69";
+    // const id = req?.params?.id;
+
+    try {
+        const user = await User.findById(id)
+        if (!user) {
+            return next(new ErrorHandler("User not found", 404));
+        }
+        res.status(200).json({
+            succes: true,
+            data: user
+        });
+    } catch (error) {
+        return next(new ErrorHandler("User not found", 404));
     }
 });

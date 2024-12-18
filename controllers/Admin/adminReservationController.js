@@ -3,6 +3,7 @@ import ErrorHandler from "../../utils/errorHandler.js";
 import catchAsyncErrors from "../../middlewares/catchAsyncErrors.js";
 import Suspended from "../../models/suspended.js";
 import { generateQr } from "../../utils/qrCodeGenerator.js";
+import Seat from "../../models/seat.js";
 
 // Get all rezervations
 export const adminGetAllReservations = catchAsyncErrors(async (req, res, next) => {
@@ -61,6 +62,11 @@ export const adminCreateReservation = catchAsyncErrors(async (req, res, next) =>
 
         if (isReservationExist) {
             return next(new ErrorHandler("Reservation already exist", 409));
+        }
+
+        const isSeatBooked = await Seat.findById(req?.body?.seat);
+        if (isSeatBooked.isBooked) {
+            return next(new ErrorHandler("Seat already booked", 409));
         }
 
         const reservation = {

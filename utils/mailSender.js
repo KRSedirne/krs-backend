@@ -2,22 +2,25 @@ import nodemailer from "nodemailer";
 import dotenv from "dotenv";
 import catchAsyncErrors from "../middlewares/catchAsyncErrors.js";
 import ErrorHandler from "./errorHandler.js";
+import globalConfig from "../configs/globalConfig.js";
 
 dotenv.config();
 
 const sendMail = catchAsyncErrors(async (to, subject, htmlContent) => {
 
     const transporter = nodemailer.createTransport({
+        host: globalConfig.smtp.host,
+        port: globalConfig.smtp.port,
         service: "Gmail",
         auth: {
-            user: process.env.EMAIL_USER,
-            pass: process.env.EMAIL_PASS,
+            user: globalConfig.smtp.email,
+            pass: globalConfig.smtp.password,
         },
 
     });
 
     const mailOptions = {
-        from: process.env.EMAIL_USER,
+        from: `${globalConfig.smtp.fromName} <${globalConfig.smtp.fromEmail}>`,
         to: to,
         subject: subject,
         html: htmlContent,

@@ -45,7 +45,7 @@ const reservationSchema = new mongoose.Schema({
     },
     expireTime: {
         type: Date,
-        default: new Date()
+        default: 0
     }
 
 }, { timestamps: true })

@@ -1,9 +1,8 @@
-import cron from "node-cron";
-import { createSuspended } from "./createSuspended.js";
 import Locker from "../models/locker.js";
 import ErrorHandler from "./errorHandler.js";
 import catchAsyncErrors from "../middlewares/catchAsyncErrors.js";
 import Reservation from "../models/reservation.js";
+import Suspended from "../models/suspended.js";
 
 // Check locker reservations and suspend the users if they didn't return the locker key on time
 export const autoCancelLockerReservation = catchAsyncErrors(async () => {
@@ -22,7 +21,7 @@ export const autoCancelLockerReservation = catchAsyncErrors(async () => {
                     description: "User didn't return the locker key. Suspended for a week.",
                     expireTime: (now.getTime() + (7 * 24 * 60 * 60 * 1000))
                 };
-                await createSuspended(data);
+                await Suspended.create(data);
 
                 locker.isBooked = false;
                 locker.user = null;
@@ -35,7 +34,35 @@ export const autoCancelLockerReservation = catchAsyncErrors(async () => {
     }
 });
 
-// Check reservations and suspend the users if they didn't check-in on time
+// Check user reservation expire time and if ended, end the reservation
+export const autoEndReservation = catchAsyncErrors(async () => {
+    try {
+        const reservations = await Reservation.find();
+        const now = new Date();
+
+        reservations.forEach(async (reservation) => {
+            if (now > reservation.expireTime) {
+                if (reservation.isCheckIn) {
+                    reservation.deleteOne();
+                    return res.status(200).json({ message: "Reservation ended." }); // check this response on frontend
+                }
+                if (!reservation.isCheckIn) {
+                    const data = {
+                        user: reservation.user,
+                        type: "reservation",
+                        description: "User didn't check-in on time. Suspended for a 2 week.",
+                        expireTime: (now.getTime() + (7 * 24 * 60 * 60 * 1000))
+                    }
+                    await Suspended.create(data);
+                }
+            }
+        });
+    } catch (error) {
+        return next(new ErrorHandler("Reservation couldn't be ended automaticly.", 500));
+    }
+});
+
+// Check reservation Date and suspend the users if they didn't check-in on time (15 min)
 export const autoCheckReservation = catchAsyncErrors(async () => {
     try {
         const reservations = await Reservation.find({ isCheckIn: false });
@@ -50,7 +77,7 @@ export const autoCheckReservation = catchAsyncErrors(async () => {
                     description: "User didn't check-in on time. Suspended for a 2 week.",
                     expireTime: (now.getTime() + (14 * 24 * 60 * 60 * 1000))
                 }
-                await createSuspended(data);
+                await Suspended.create(data);
             }
 
         });

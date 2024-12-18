@@ -68,7 +68,6 @@ export const createReservation = catchAsyncErrors(async (req, res, next) => {
         const reservation = {
             ...req?.body,
             qrCode: await generateQr(req?.body?.user),
-            expireTime: new Date(Date.now() + 90 * 60 * 1000)
         }
 
         const response = await Reservation.create(reservation);

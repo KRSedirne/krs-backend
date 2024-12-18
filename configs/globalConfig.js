@@ -14,7 +14,18 @@ const globalConfig = {
     mongoProd: process.env.DB_URI_PROD,
 
     // jwt secret key
-    jwtSecret: process.env.JWT_SECRET
+    jwtSecret: process.env.JWT_SECRET,
+
+    // SMTP
+    smtp: {
+        host: process.env.SMTP_HOST,
+        port: process.env.SMTP_PORT,
+        email: process.env.SMTP_EMAIL,
+        password: process.env.SMTP_PASSWORD
+    },
+
+    // Frontend URL
+    frontendUrl: process.env.FRONTEND_URL
 }
 
 export default globalConfig;

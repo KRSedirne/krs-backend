@@ -38,6 +38,12 @@ export const reserveLocker = catchAsyncErrors(async (req, res, next) => {
         const user = req?.body?.user;
         const locker = await Locker.findOne({ _id: id });
 
+        const isSuspended = await Punishment.findOne({ user: user, type: "locker" })
+
+        if (isSuspended) {
+            return next(new ErrorHandler("Error user is suspended.", 401));
+        }
+
         if (!locker) {
             return next(new ErrorHandler(`Couldn\'t find any locker id match with ${id}`, 404));
         }
