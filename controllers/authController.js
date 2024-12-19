@@ -37,6 +37,8 @@ export const login = catchAsyncErrors(async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
+    console.log(email, password);
+
     // Find user by email
     const user = await User.findOne({ email }).select('+password');
     if (!user) {
@@ -56,7 +58,7 @@ export const login = catchAsyncErrors(async (req, res, next) => {
       { expiresIn: '1d' }
     );
 
-    res.status(200).cookie('token', token, { httpOnly: true }).json({ token, user: { _id: user._id, email: user.email } });
+    res.status(200).json({ token, user: { _id: user._id, email: user.email }, success: true });
   } catch (error) {
     return next(new ErrorHandler(`user couldn't logged in. ${error.message}`, 400));
   }

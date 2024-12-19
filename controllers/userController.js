@@ -68,11 +68,14 @@ export const updatePassword = catchAsyncErrors(async (req, res, next) => {
 
 export const getUserProfile = catchAsyncErrors(async (req, res, next) => {
 
-    const id = "674f540c1737f9e77d72ed69";
-    // const id = req?.params?.id;
+    console.log("req.user on profile:", req?.user);
+
+    const id = req?.user?._id;
+    console.log("id :", id);
 
     try {
         const user = await User.findById(id)
+        console.log("user on profile :", user);
         if (!user) {
             return next(new ErrorHandler("User not found", 404));
         }

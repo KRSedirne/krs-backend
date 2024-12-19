@@ -4,9 +4,9 @@ import { isAuthenticatedUser } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
 
-router.route('/user/profile').get(getUserProfile); // isAuthenticatedUser eklenecek
-router.route('/user/password/update').put(updatePassword); // isAuthenticatedUser eklenecek
+router.route('/user/profile').get(isAuthenticatedUser, getUserProfile);
 router.route('/users').get(isAuthenticatedUser, getAllUsers);
 router.route('/user/:id').get(isAuthenticatedUser, getUser);
+router.route('/user/password/update').put(isAuthenticatedUser, updatePassword);
 
 export default router; 
