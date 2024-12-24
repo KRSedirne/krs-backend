@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs"
 import ErrorHandler from "../utils/errorHandler.js";
 import catchAsyncErrors from "../middlewares/catchAsyncErrors.js";
 
-export const getUser = catchAsyncErrors(async (req, res, next) => {
+export const getUserDetails = catchAsyncErrors(async (req, res, next) => {
     try {
         const user = await User.findOne({ _id: req?.params?.id });
         if (!user) {
@@ -40,8 +40,7 @@ export const updatePassword = catchAsyncErrors(async (req, res, next) => {
         return next(new ErrorHandler('Please enter old password and new password', 400));
     }
     try {
-        // const userId = req?.user?._id;
-        const userId = "674f540c1737f9e77d72ed69";
+        const userId = req?.user?._id;
 
         const user = await User.findOne({ _id: userId }).select('+password');
         if (!user) {

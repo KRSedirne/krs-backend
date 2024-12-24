@@ -5,13 +5,15 @@ const seatSchema = new mongoose.Schema({
         type: Number,
         required: [true, "Seat Number is required"]
     },
-    saloonName: {
-        type: String,
-        required: [true, "Salon Name is required"]
+    saloon: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "saloons",
+        required: [true, "Saloon is required"]
     },
-    blockName: {
-        type: String,
-        required: [true, "Block Name is required"]
+    block: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "blocks",
+        required: [true, "Block is required"]
     },
     isBooked: {
         type: Boolean,

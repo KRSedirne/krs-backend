@@ -2,7 +2,6 @@ import User from "../../models/user.js"
 import ErrorHandler from "../../utils/errorHandler.js";
 import catchAsyncErrors from "../../middlewares/catchAsyncErrors.js";
 
-
 export const adminCreateUser = catchAsyncErrors(async (req, res, next) => {
     try {
 
@@ -70,7 +69,7 @@ export const adminDeleteUser = catchAsyncErrors(async (req, res, next) => {
     }
 });
 
-export const adminGetUser = catchAsyncErrors(async (req, res, next) => {
+export const adminGetUserDetails = catchAsyncErrors(async (req, res, next) => {
     try {
         const user = await User.findById(req?.params?.id);
         if (!user) {

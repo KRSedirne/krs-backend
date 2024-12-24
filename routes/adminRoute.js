@@ -1,16 +1,18 @@
 import express from 'express';
-import { adminCreateUser, adminDeleteUser, adminGetAllUsers, adminGetUser, adminUpdateUser } from '../controllers/admin/adminUserController.js';
+import { adminCreateUser, adminDeleteUser, adminGetAllUsers, adminGetUserDetails, adminUpdateUser } from '../controllers/admin/adminUserController.js';
 import { isAuthenticatedUser, isAdmin } from '../middlewares/authMiddleware.js';
 import { adminGetAllSuspendeds, adminGetSuspendedDetails, adminCreateSuspended, adminUpdateSuspended, adminDeleteSuspended, adminManuallyCheckSuspended } from '../controllers/admin/adminSuspendedController.js';
 import { adminGetAllLockers, adminGetLockerDetails, adminCreateLocker, adminUpdateLocker, adminDeleteLocker, adminReserveLocker, adminCancelLockerReservation } from '../controllers/admin/adminLockerController.js';
 import { adminGetAllReservations, adminGetReservationDetails, adminCreateReservation, adminUpdateReservation, adminDeleteReservation, adminCancelReservation, adminGetReservationExpireTime, adminAddOutReason, adminGetQRCode, adminRemainReservation } from '../controllers/admin/adminReservationController.js';
 import { adminGetAllSeats, adminGetSeatDetails, adminCreateSeat, adminUpdateSeat, adminDeleteSeat } from '../controllers/admin/adminSeatController.js';
+import { adminGetAllBlocks, adminGetBlockDetails, adminCreateBlock, adminUpdateBlock, adminDeleteBlock } from '../controllers/admin/adminBlockController.js';
+import { adminGetAllSaloons, adminGetSaloonDetails, adminCreateSaloon, adminUpdateSaloon, adminDeleteSaloon } from '../controllers/admin/adminSaloonController.js';
 
 const router = express.Router();
 
 // Admin User routes
 router.route('/users').get(isAuthenticatedUser, isAdmin, adminGetAllUsers)
-router.route('/user/:id').get(isAuthenticatedUser, isAdmin, adminGetUser)
+router.route('/user/:id').get(isAuthenticatedUser, isAdmin, adminGetUserDetails)
 router.route('/user/create').post(isAuthenticatedUser, isAdmin, adminCreateUser);
 router.route('/user/update/:id').put(isAuthenticatedUser, isAdmin, adminUpdateUser)
 router.route('/user/delete/:id').delete(isAuthenticatedUser, isAdmin, adminDeleteUser)
