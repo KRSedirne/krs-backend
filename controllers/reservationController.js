@@ -182,6 +182,10 @@ export const addOutReason = catchAsyncErrors(async (req, res, next) => {
             time: req?.body?.time
         }
 
+        setTimeout(() => {
+            checkUserBreakExpireTime(req?.params?.id, outReason);
+        }, req?.body?.time * 60 * 1000);
+
         response?.outReason.push(outReason);
 
         response.expireTime = response.expireTime + (req?.body?.time * 60 * 1000);

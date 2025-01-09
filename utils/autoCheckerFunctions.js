@@ -101,3 +101,27 @@ export const autoCheckSuspendedUsers = catchAsyncErrors(async () => {
         return next(new ErrorHandler("Suspended users couldn't be checked automaticly.", 500));
     }
 });
+
+// Check user is returned from break or not
+export const checkUserBreakExpireTime = catchAsyncErrors(async (reservationId, outReason) => {
+    try {
+
+        const reservation = await Reservation.findById(reservationId);
+
+        const returnTime = new Date(outReason.date + outReason.time);
+        const now = new Date();
+
+        if ((now > returnTime) && (reservation.isCheckIn === false)) {
+            const data = {
+                user: reservation.user,
+                type: "reservation",
+                description: "User didn't return from break on time. Suspended for a 1 week.",
+                expireTime: (now.getTime() + (7 * 24 * 60 * 60 * 1000))
+            }
+            await Suspended.create(data);
+        }
+
+    } catch (error) {
+        return next(new ErrorHandler("Suspended user couldn't checked, something is wrong...", 500));
+    }
+});

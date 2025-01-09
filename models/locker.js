@@ -7,7 +7,7 @@ const lockerSchema = new mongoose.Schema({
     },
     user: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
+        ref: "users",
     },
     isBooked: {
         type: Boolean,

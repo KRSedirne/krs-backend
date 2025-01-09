@@ -5,8 +5,7 @@ import { adminGetAllSuspendeds, adminGetSuspendedDetails, adminCreateSuspended, 
 import { adminGetAllLockers, adminGetLockerDetails, adminCreateLocker, adminUpdateLocker, adminDeleteLocker, adminReserveLocker, adminCancelLockerReservation } from '../controllers/admin/adminLockerController.js';
 import { adminGetAllReservations, adminGetReservationDetails, adminCreateReservation, adminUpdateReservation, adminDeleteReservation, adminCancelReservation, adminGetReservationExpireTime, adminAddOutReason, adminGetQRCode, adminRemainReservation } from '../controllers/admin/adminReservationController.js';
 import { adminGetAllSeats, adminGetSeatDetails, adminCreateSeat, adminUpdateSeat, adminDeleteSeat } from '../controllers/admin/adminSeatController.js';
-import { adminGetAllBlocks, adminGetBlockDetails, adminCreateBlock, adminUpdateBlock, adminDeleteBlock } from '../controllers/admin/adminBlockController.js';
-import { adminGetAllSaloons, adminGetSaloonDetails, adminCreateSaloon, adminUpdateSaloon, adminDeleteSaloon } from '../controllers/admin/adminSaloonController.js';
+import { adminGetAllBlocks, adminGetBlockDetails, adminCreateBlock, adminUpdateBlock, adminDeleteBlock, adminAddSaloon } from '../controllers/admin/adminBlockController.js';
 
 const router = express.Router();
 
@@ -53,6 +52,12 @@ router.route("/seat/create").post(isAuthenticatedUser, isAdmin, adminCreateSeat)
 router.route("/seat/update/:id").put(isAuthenticatedUser, isAdmin, adminUpdateSeat);
 router.route("/seat/delete/:id").delete(isAuthenticatedUser, isAdmin, adminDeleteSeat);
 
-
+// Admin Block routes
+router.route("/blocks").get(isAuthenticatedUser, isAdmin, adminGetAllBlocks);
+router.route("/block/:id").get(isAuthenticatedUser, isAdmin, adminGetBlockDetails);
+router.route("/block/create").post(isAuthenticatedUser, isAdmin, adminCreateBlock);
+router.route("/block/update/:id").put(isAuthenticatedUser, isAdmin, adminUpdateBlock);
+router.route("/block/delete/:id").delete(isAuthenticatedUser, isAdmin, adminDeleteBlock);
+router.route("/block/saloon/create/:id").post(isAuthenticatedUser, isAdmin, adminAddSaloon);
 
 export default router; 

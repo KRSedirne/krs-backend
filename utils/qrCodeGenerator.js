@@ -24,7 +24,7 @@ export const isCheckingQr = catchAsyncErrors(async (req, res) => {
         const qrData = JSON.parse(qrString);
         const { reservationId, userId } = qrData;
 
-        const reservation = await Reservation.findOne({ _id: reservationId, userId });
+        const reservation = await Reservation.findOne({ _id: reservationId, userId }); // buradaki userId-> user: userId olarak değiştirilmeli çünkü modelin altında userId yok
         if (!reservation) {
             return next(new ErrorHandler('Reservation not found!', 404));
         }

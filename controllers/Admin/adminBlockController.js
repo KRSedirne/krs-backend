@@ -1,6 +1,6 @@
-import Block from "../../models/blocks";
-import ErrorHandler from "../../utils/errorHandler";
-import catchAsyncErrors from "../../middlewares/catchAsyncErrors";
+import Block from "../../models/block.js";
+import ErrorHandler from "../../utils/errorHandler.js";
+import catchAsyncErrors from "../../middlewares/catchAsyncErrors.js";
 
 // Admin get all blocks
 export const adminGetAllBlocks = catchAsyncErrors(async (req, res, next) => {
@@ -76,5 +76,22 @@ export const adminDeleteBlock = catchAsyncErrors(async (req, res, next) => {
         return res.status(204).json({ message: "Block deleted successfully" });
     } catch (error) {
         return next(new ErrorHandler("Block couldn't delete, something is gone wrong...", 500));
+    }
+});
+
+export const adminAddSaloon = catchAsyncErrors(async (req, res, next) => {
+
+    try {
+        const block = await Block.findById(req?.params?.id);
+
+        if (!block) {
+            return next(new ErrorHandler("Block not found with this ID", 404));
+        }
+
+        block?.saloon.push(req?.body);
+        await block.save();
+        return res.status(201).json({ block });
+    } catch (error) {
+        return next(new ErrorHandler("Saloon couldn't create, something is gone wrong...", 500));
     }
 });

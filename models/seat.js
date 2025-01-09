@@ -5,9 +5,8 @@ const seatSchema = new mongoose.Schema({
         type: Number,
         required: [true, "Seat Number is required"]
     },
-    saloon: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "saloons",
+    saloonName: {
+        type: String,
         required: [true, "Saloon is required"]
     },
     block: {
