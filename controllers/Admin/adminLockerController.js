@@ -2,6 +2,7 @@ import Locker from "../../models/locker.js";
 import Suspended from "../../models/suspended.js";
 import ErrorHandler from "../../utils/errorHandler.js";
 import catchAsyncErrors from "../../middlewares/catchAsyncErrors.js";
+import User from "../../models/user.js";
 
 
 //listing all lockers
@@ -52,22 +53,6 @@ export const adminCreateLocker = catchAsyncErrors(async (req, res, next) => {
 });
 
 //update a locker
-export const adminUpdateLocker = async (req, res) => {
-    try {
-        const id = req?.params?.id;
-        const updates = req?.body;
-        const updatedLocker = await Locker.findOneAndUpdate({ _id: id }, updates, {
-            new: true,
-            runValidators: true
-        });
-        if (!updateLocker) {
-            return res.status(404).json({ message: "Locker not found." });
-        }
-        res.status(200).json({ message: "Locker updated successfully", updatedLocker });
-    } catch (e) {
-        res.status(400).json({ message: "Error updating locker", error: e.message });
-    }
-}
 export const adminUpdateLocker = catchAsyncErrors(async (req, res, next) => {
     try {
         const id = req?.params?.id;
@@ -97,9 +82,9 @@ export const adminDeleteLocker = catchAsyncErrors(async (req, res, next) => {
     catch (e) {
         return next(new ErrorHandler("Locker couldn't delete, something gone wrong...", 500));
     }
-}
+});
 
-export const adminReserveLocker = async (req, res) => {
+export const adminReserveLocker = catchAsyncErrors(async (req, res) => {
     try {
         const id = req?.params?.id;
         const userEmail = req?.body?.email;
@@ -108,20 +93,19 @@ export const adminReserveLocker = async (req, res) => {
 
         const locker = await Locker.findById(id);
         if (!locker) {
-            return res.status(404).json({ message: "Locker not found" });
+            return next(new ErrorHandler("Locker not found", 404));
         }
         if (locker.isBooked) {
-            return res.status(400).json({ message: "This locker is already reserved." });
+            return next(new ErrorHandler("This locker is already reserved.", 409))
         }
         const doesUserHaveResLocker = await Locker.findOne({ user: user, isBooked: true });
 
         if (doesUserHaveResLocker) {
-            return res.status(400).json({ message: "Error: User already has an active reservation." });
+            return next(new ErrorHandler("User Already has an active reservation.", 409))
         }
         if (isSuspended) {
-            return res.status(400).json({ message: "Error user's request decline. User suspended" });
+            return next(new ErrorHandler("User's request denied. User Suspended", 400))
         }
-
 
         locker.isBooked = true;
         locker.user = user;
@@ -152,7 +136,7 @@ export const adminCancelLockerReservation = catchAsyncErrors(async (req, res, ne
     catch (e) {
         return next(new ErrorHandler("Error locker reservation not cancelled.", 500));
     }
-}
+});
 export const adminExpandReservation = async (req, res) => {
     try {
         const id = req?.params?.id;
