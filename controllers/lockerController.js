@@ -1,6 +1,7 @@
 import Locker from "../models/locker.js";
 import ErrorHandler from "../utils/errorHandler.js";
 import catchAsyncErrors from "../middlewares/catchAsyncErrors.js";
+import Suspended from "../models/suspended.js";
 
 //listing all lockers
 export const getAllLockers = catchAsyncErrors(async (req, res, next) => {
@@ -35,10 +36,10 @@ export const getLockerDetails = catchAsyncErrors(async (req, res, next) => {
 export const reserveLocker = catchAsyncErrors(async (req, res, next) => {
     try {
         const id = req?.params?.id;
-        const user = req?.body?.user;
+        const user = req?.user;
         const locker = await Locker.findOne({ _id: id });
 
-        const isSuspended = await Punishment.findOne({ user: user, type: "locker" })
+        const isSuspended = await Suspended.findOne({ user: user, type: "locker" })
 
         if (isSuspended) {
             return next(new ErrorHandler("Error user is suspended.", 401));

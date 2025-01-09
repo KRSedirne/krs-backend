@@ -52,6 +52,22 @@ export const adminCreateLocker = catchAsyncErrors(async (req, res, next) => {
 });
 
 //update a locker
+export const adminUpdateLocker = async (req, res) => {
+    try {
+        const id = req?.params?.id;
+        const updates = req?.body;
+        const updatedLocker = await Locker.findOneAndUpdate({ _id: id }, updates, {
+            new: true,
+            runValidators: true
+        });
+        if (!updateLocker) {
+            return res.status(404).json({ message: "Locker not found." });
+        }
+        res.status(200).json({ message: "Locker updated successfully", updatedLocker });
+    } catch (e) {
+        res.status(400).json({ message: "Error updating locker", error: e.message });
+    }
+}
 export const adminUpdateLocker = catchAsyncErrors(async (req, res, next) => {
     try {
         const id = req?.params?.id;
@@ -81,28 +97,29 @@ export const adminDeleteLocker = catchAsyncErrors(async (req, res, next) => {
     catch (e) {
         return next(new ErrorHandler("Locker couldn't delete, something gone wrong...", 500));
     }
-});
+}
 
-export const adminReserveLocker = catchAsyncErrors(async (req, res, next) => {
+export const adminReserveLocker = async (req, res) => {
     try {
         const id = req?.params?.id;
-        const user = req?.body?.user;
-        const isSuspended = await Suspended.findOne({ user: user, type: "locker" })
+        const userEmail = req?.body?.email;
+        const user = await User.findOne({ email: userEmail });
+        const isSuspended = await Punishment.findOne({ user: user, type: "locker" })
 
         const locker = await Locker.findById(id);
         if (!locker) {
-            return next(new ErrorHandler("Locker not found", 404));
+            return res.status(404).json({ message: "Locker not found" });
         }
         if (locker.isBooked) {
-            return next(new ErrorHandler("This locker is already reserved.", 409));
+            return res.status(400).json({ message: "This locker is already reserved." });
         }
         const doesUserHaveResLocker = await Locker.findOne({ user: user, isBooked: true });
 
         if (doesUserHaveResLocker) {
-            return next(new ErrorHandler("User already has an active reservation...", 409));
+            return res.status(400).json({ message: "Error: User already has an active reservation." });
         }
         if (isSuspended) {
-            return next(new ErrorHandler("user's request decline. User suspended", 400))
+            return res.status(400).json({ message: "Error user's request decline. User suspended" });
         }
 
 
@@ -135,4 +152,21 @@ export const adminCancelLockerReservation = catchAsyncErrors(async (req, res, ne
     catch (e) {
         return next(new ErrorHandler("Error locker reservation not cancelled.", 500));
     }
-});
+}
+export const adminExpandReservation = async (req, res) => {
+    try {
+        const id = req?.params?.id;
+        const locker = await Locker.findOne({ _id: id });
+        if (!locker) {
+            return res.status(404).json({ message: "Locker not Found" });
+        }
+        if (!locker.isBooked) {
+            return res.status(400).json({ message: "This locker isn't reserved. " });
+        }
+        await locker.save();
+        res.status(200).json({ message: "Locker reservation date expanded" });
+    }
+    catch (e) {
+        res.status(400).json({ message: "Error reservation cannot be expanded" });
+    }
+}

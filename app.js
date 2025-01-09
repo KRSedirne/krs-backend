@@ -28,7 +28,10 @@ app.use(express.json())
 app.use(morgan("dev"));
 app.use(cookieParser());
 
+
 // Use all routes
+app.use("/api/v1", adminRoute);
+app.use("/api/v1", authRoute);
 app.use("/api/v1", seatRoutes);
 app.use("/api/v1", reservationRoute);
 app.use("/api/v1", suspendedRoute);
@@ -44,6 +47,8 @@ app.use(errorMiddleware);
 cron.schedule('0 0 * * *', autoCancelLockerReservation); // every day at 00:00
 cron.schedule('0 0 * * *', autoCheckReservation); // every day at 00:00
 cron.schedule('0 0 * * *', autoCheckSuspendedUsers); // every day at 00:00
+
+autoCancelLockerReservation();
 
 const port = globalConfig.port || 5000;
 const server = app.listen(port, () => {
