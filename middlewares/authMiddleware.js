@@ -11,6 +11,8 @@ export const isAuthenticatedUser = catchAsyncErrors(async (req, res, next) => {
     // const { token } = req?.cookies;
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
+    console.log("decoded :", decoded);
+
     const user = await User.findOne({
       _id: decoded.id
     });
@@ -18,7 +20,7 @@ export const isAuthenticatedUser = catchAsyncErrors(async (req, res, next) => {
     console.log("user :", user);
 
     if (!user) {
-      throw new ErrorHandler('user not found', 404);
+      throw new ErrorHandler('user not found!!!', 404);
     }
 
     req.token = token;

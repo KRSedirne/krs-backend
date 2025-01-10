@@ -69,20 +69,14 @@ export const getUserProfile = catchAsyncErrors(async (req, res, next) => {
 
     console.log("req.user on profile:", req?.user);
 
-    const id = req?.user?._id;
-    console.log("id :", id);
-
-    try {
-        const user = await User.findById(id)
-        console.log("user on profile :", user);
-        if (!user) {
-            return next(new ErrorHandler("User not found", 404));
-        }
-        res.status(200).json({
-            succes: true,
-            data: user
-        });
-    } catch (error) {
+    const user = req?.user;
+    console.log("user on profile :", user);
+    if (!user) {
         return next(new ErrorHandler("User not found", 404));
     }
+    res.status(200).json({
+        succes: true,
+        data: user
+    });
+    return next(new ErrorHandler("User not founds", 404));
 });

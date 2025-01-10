@@ -19,12 +19,6 @@ export default (err, req, res, next) => {
         error = new ErrorHandler(message, 400)
     }
 
-    // // Handle Syntax Error
-    // if (err.name === "SyntaxError") {
-    //     const message = err.name + " " + err.message
-    //     error = new ErrorHandler(message, 400)
-    // }
-
     // Handle Mongoose Duplicate Key Error
     if (err.code === 11000) {
         const message = `Duplicate ${Object.keys(err.keyValue)} entered.`;
