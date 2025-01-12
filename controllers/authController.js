@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import globalConfig from '../configs/globalConfig.js';
 import ErrorHandler from "../utils/errorHandler.js";
 import catchAsyncErrors from "../middlewares/catchAsyncErrors.js";
+import sendMail from "../utils/mailSender.js";
 
 const activeTokens = new Set();
 
@@ -64,45 +65,49 @@ export const login = catchAsyncErrors(async (req, res, next) => {
   }
 });
 
+
 export const logout = catchAsyncErrors(async (req, res, next) => {
   try {
-    const token = req.cookies.token;
+
+    const token = req.header('Authorization')?.replace('Bearer ', '');
+    
     if (!token) {
-      return next(new ErrorHandler('You are not logged in, token expired or already logged out once', 401));
+      return next(new ErrorHandler('No token found, please log in first', 401));
     }
-    activeTokens.delete(token);
-    res.clearCookie('token', {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production', //https ortamında çalışırken true olmalı
-      sameSite: 'strict', //CSRF korumasi için
-    }).json({ message: 'Logged out successfuly' });
+
+    res.status(200).json({
+      success: true,
+      message: 'Successfully logged out. Token will be cleared on client side.',
+    });
+    
   } catch (error) {
-    return next(new ErrorHandler(`user couldn't logged out. ${error.message}`, 500));
+    return next(new ErrorHandler(`Could not log out: ${error.message}`, 500));
   }
 });
 
 export const forgetPassword = catchAsyncErrors(async (req, res, next) => {
-  //TODO: neden süslü parantez kullandık bak
-  const { email } = req.body;
   try {
+    const { email } = req.body;
+
     const user = await User.findOne({ email });
     if (!user) {
-      return next(new ErrorHandler('User not found with this email', 404));
+      return next(new ErrorHandler('User not found with this email', 404)); 
     }
 
     const resetLink = `${process.env.FRONTEND_URL}/reset-password/${user._id}`;
 
     const emailContent = `
-            <p>Merhaba ${user.name},</p>
-            <p>Sifre sifirlama talebinde bulundunuz. Sifrenizi sifirlamak icin asagidaki baglantiya tiklayin:</p>
-            <a href="${resetLink}">sifremi Sifirla</a>
-            <p>Bu talebi siz yapmadiysaniz, lutfen bize ulasiniz</p>
-        `;
-    await sendMail(user.email, 'sifre Sifirlama Talebi', emailContent);
+      <p>Merhaba ${user.name},</p>
+      <p>Sifre sifirlama talebinde bulundunuz. Sifrenizi sifirlamak icin asagidaki baglantiya tiklayin:</p>
+      <a href="${resetLink}">Sifremi Sifirla</a>
+      <p>Bu talebi siz yapmadiysaniz, lutfen bize ulasiniz</p>
+    `;
+
+    await sendMail(user.email, 'Sifre Sifirlama Talebi', emailContent);
 
     res.status(200).json({ message: 'Email reset link was sent!' });
   } catch (error) {
-    return next(new ErrorHandler(`user couldn't sent forgat password mail. ${error.message}`, 500));
+    return next(new ErrorHandler(`User couldn't send forgot password mail. ${error.message}`, 500));
   }
 });
 

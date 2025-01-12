@@ -33,30 +33,46 @@ export const getBlockDetails = catchAsyncErrors(async (req, res, next) => {
 
 export const getSaloonImages = catchAsyncErrors(async (req, res, next) => {
     try {
-        const block = await Block.findById(req.params.id);
+      console.log("Received saloonId:", req.params.id);
+  
+      const saloonId = req.params.id;
+      let targetSaloon = null;
+      const blocks = await Block.find();
 
-        if (!block) {
-            return next(new ErrorHandler("Block not found", 404));
+    for (let block of blocks) {
+        console.log("Checking block:", block);
+        for(let saloon of block.saloon){
+            console.log("Checking saloon:", saloon);
+            if (saloon.id === saloonId.toString()) {
+                targetSaloon = saloon;
+                break;
+            }
         }
-
-        const saloons = block.saloon;
-
-        if (saloons.length === 0) {
-            return res.status(404).json({ message: "No saloons found in this block" });
-        }
-
-        const saloonImages = saloons
-            .filter(saloon => saloon.image)
-            .map(saloon => `${req.protocol}://${req.get('host')}/uploads/${saloon.image}`);
-
-        if (saloonImages.length === 0) {
-            return res.status(404).json({ message: "No saloon images found in this block" });
-        }
-
-        return res.status(200).json({ images: saloonImages });
-
-    } catch (error) {
-        console.log(error);
-        return next(new ErrorHandler("Cannot retrieve saloon images", 500));
     }
-});
+      
+      console.log("Target saloon:", targetSaloon);
+  
+      if (!targetSaloon) {
+        return res.status(404).json({ message: "Saloon not found in this block" });
+      }
+  
+      if (!targetSaloon.image) {
+        return res.status(404).json({ message: "No image found for this saloon" });
+      }
+
+      let imagePath = targetSaloon.image;
+
+      if (imagePath.includes("uploads/uploads")) {
+        imagePath = imagePath.replace("uploads/uploads", "uploads");
+      }
+      imagePath = imagePath.replace(/\\/g, "/");
+      const saloonImage = imagePath.startsWith("http")
+      ? imagePath // Zaten tam URL
+      : `${req.protocol}://${req.get("host")}/${imagePath}`;
+
+      return res.status(200).json({ image: saloonImage });
+    } catch (error) {
+      console.error("Error while retrieving saloon image:", error);
+      return next(new ErrorHandler("Cannot retrieve saloon image", 500));
+    }
+  });
