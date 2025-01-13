@@ -110,7 +110,7 @@ export const adminAddSaloon = catchAsyncErrors(async (req, res, next) => {
         const pythonResponse = await sendImageToPython(lastSaloon, block, res);
 
         if (pythonResponse.success) {
-            return res.status(200).json({ message: `Saloon created successfully under block ${req.params.id}` });
+            return res.status(200).json({ saloonName,imagePath,message: `Saloon created successfully under block ${req.params.id}` });
         }
         
         return next(new ErrorHandler("Error processing image from Python", 500));

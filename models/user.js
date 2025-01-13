@@ -18,7 +18,7 @@ const userSchema = new mongoose.Schema({
     password: {
         type: String,
         required: [true, "Password is required"],
-        select: false
+        select: false,
     },
     role: {
         type: String,
@@ -27,11 +27,16 @@ const userSchema = new mongoose.Schema({
     }
 })
 
-//şifre hashlemek için
 userSchema.pre('save', async function (next) {
     if (this.isModified('password')) {
-        if (this.password.length < 2 || this.password.length > 30) {
-            return next(new Error('Password should be between 2 and 30 characters.'));
+        if (this.password.length < 6 || this.password.length > 30) {
+            return next(new Error('Password should be between 6 and 30 characters.'));
+        }
+
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[_./*-@&%/()=?_^+!><])[A-Za-z\d_./*-@&%/()=?_^+!><]{6,30}$/;
+
+        if (!passwordRegex.test(this.password)) {
+            return next(new Error('Password should contain at least one lowercase letter, one uppercase letter, and one number.'));
         }
         try {
             this.password = await bcrypt.hash(this.password, 10);
@@ -49,8 +54,19 @@ userSchema.pre('findOneAndUpdate', async function (next) {
     // Eğer şifre güncelleniyorsa, hashle
     if (update.password) {
         // Plain text şifrenin uzunluğunu kontrol et
-        if (update.password.length < 2 || update.password.length > 30) {
+        if (update.password.length < 6 || update.password.length > 30) {
             return next(new Error('Password should be between 2 and 30 characters.'));
+        }
+
+        if (update.password.length < 6 || update.password.length > 30) {
+            return next(new Error('Password should be between 6 and 30 characters.'));
+        }
+        
+        // Şifrede en az bir küçük harf, bir büyük harf ve bir rakam olmalı
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[_./*-@&%/()=?_^+!><])[A-Za-z\d_./*-@&%/()=?_^+!><]{6,30}$/;
+
+        if (!passwordRegex.test(update.password)) {
+            return next(new Error('Password should contain at least one lowercase letter, one uppercase letter, and one number.'));
         }
 
         // Hashleme işlemi
