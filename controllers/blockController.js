@@ -68,7 +68,7 @@ export const getSaloonImages = catchAsyncErrors(async (req, res, next) => {
       imagePath = imagePath.replace(/\\/g, "/");
       const saloonImage = imagePath.startsWith("http")
       ? imagePath // Zaten tam URL
-      : `C://Users//senaa//Downloads//krs-backend//${req.get("host")}/${imagePath}`;
+      : `C://Users//senaa//Downloads//krs-backend-eski//${imagePath}`;
 
       return res.status(200).json({ image: saloonImage });
     } catch (error) {

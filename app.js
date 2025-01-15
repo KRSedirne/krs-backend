@@ -1,7 +1,7 @@
 import express from "express";
+import cors from "cors";
 import { connectDatabase } from "./configs/dbConfig.js";
 import globalConfig from "./configs/globalConfig.js";
-import cors from "cors";
 import morgan from 'morgan';
 import cookieParser from 'cookie-parser';
 import seatRoutes from "./routes/seatRoute.js";
@@ -16,6 +16,7 @@ import swagger from "./configs/swagger.js";
 import cron from "node-cron";
 import { autoCancelLockerReservation, autoCheckReservation, autoCheckSuspendedUsers } from "./utils/autoCheckerFunctions.js";
 import errorMiddleware from "./middlewares/errors.js";
+import { configDotenv } from "dotenv";
 
 
 const app = express();

@@ -12,8 +12,16 @@ const blockSchema = new mongoose.Schema({
                 required: [true, "Name is required"]
             },
             image: {
-                type: String,
-                required: [true, "Image is required"]
+
+                public_id: {
+                    type: String,
+                    required: [true, "Image is required"]
+                },
+                url: {
+                    type: String,
+                    required: [true, "Image is required"]
+                }
+
             },
         }
     ]
