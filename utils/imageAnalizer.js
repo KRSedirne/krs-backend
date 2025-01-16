@@ -12,27 +12,30 @@ import Seat from '../models/seat.js';
 //         cb(null, Date.now() + path.extname(file.originalname));  // Dosya ismini zaman damgası ile oluştur
 //     }
 // });
+/////////////////////////////////////////////////////////////////////////////////
+// const storage = multer.memoryStorage();
+
+// export const upload = multer({
+//     storage: storage,
+//     limits: {
+//         fileSize: 50 * 1024 * 1024  // Maksimum dosya boyutu 10MB
+//     },
+//     fileFilter: (req, file, cb) => {
+//         const allowedFileTypes = ['jpeg', 'jpg', 'png'];
+//         const extname = allowedFileTypes.includes(path.extname(file.originalname).toLowerCase().slice(1));
+//         const mimeType = allowedFileTypes.some(type => file.mimetype.includes(type));
+//         if (extname && mimeType) {
+//             return cb(null, true); 
+//         } else {
+//             cb(new Error("Only jpg, jpeg, and png files are allowed."));
+//         }
+//     }
+// });
 
 const storage = multer.memoryStorage();
+export const upload = multer({ storage });
 
-export const upload = multer({
-    storage: storage,
-    limits: {
-        fileSize: 50 * 1024 * 1024  // Maksimum dosya boyutu 10MB
-    },
-    fileFilter: (req, file, cb) => {
-        const allowedFileTypes = ['jpeg', 'jpg', 'png'];
-        const extname = allowedFileTypes.includes(path.extname(file.originalname).toLowerCase().slice(1));
-        const mimeType = allowedFileTypes.some(type => file.mimetype.includes(type));
-        if (extname && mimeType) {
-            return cb(null, true); 
-        } else {
-            cb(new Error("Only jpg, jpeg, and png files are allowed."));
-        }
-    }
-});
-
-export const sendImageToPython = async (lastSaloon,block, res) => {
+export const sendImageToPython = async (lastSaloon,block,res) => {
     try {
 
         // Block'u veritabanından bul
@@ -40,9 +43,9 @@ export const sendImageToPython = async (lastSaloon,block, res) => {
         if (!saloon) {
             return { success: false, message: "Saloon not found" };
         }
-
+        console.log("Saloon:",saloon.image.url);
         // Saloon array'inden bir image path'i al (örneğin ilk saloon'dan)
-        const imagePath = saloon.image;
+        const imagePath = saloon.image.url;
         if (!imagePath) {
             return { success: false, message: "No image found in this saloon" };
         }

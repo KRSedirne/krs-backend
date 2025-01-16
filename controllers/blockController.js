@@ -60,17 +60,14 @@ export const getSaloonImages = catchAsyncErrors(async (req, res, next) => {
         return res.status(404).json({ message: "No image found for this saloon" });
       }
 
-      let imagePath = targetSaloon.image;
+      let imagePath = targetSaloon.image.url;
 
-      if (imagePath.includes("uploads/uploads")) {
-        imagePath = imagePath.replace("uploads/uploads", "uploads");
+      if (imagePath.startsWith("http")) {
+        return res.status(200).json({ url: imagePath });
       }
-      imagePath = imagePath.replace(/\\/g, "/");
-      const saloonImage = imagePath.startsWith("http")
-      ? imagePath // Zaten tam URL
-      : `C://Users//senaa//Downloads//krs-backend-eski//${imagePath}`;
+  
+      return res.status(404).json({ message: "Invalid image URL" });
 
-      return res.status(200).json({ image: saloonImage });
     } catch (error) {
       console.error("Error while retrieving saloon image:", error);
       return next(new ErrorHandler("Cannot retrieve saloon image", 500));

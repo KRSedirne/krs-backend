@@ -82,51 +82,64 @@ export const adminDeleteBlock = catchAsyncErrors(async (req, res, next) => {
 });
 
 export const adminAddSaloon = catchAsyncErrors(async (req, res, next) => {
-
     try {
-        const saloonName  = req.body.saloonName;
-        const file = req.file; 
-        const block = await Block.findById(req.params.id);
-        console.log("imagePath:",file);
-        console.log("flag:",block);
-        console.log("name:",saloonName);
+        // Body'den gelen verileri al ve kontrol et
+        const { saloonName, url: base64Image } = req.body;
+        const blockId = req.params.id;
 
-        if (!block) {
-            return  next(new ErrorHandler("Saloon not found", 404));
+        if (!saloonName || !base64Image) {
+            return next(new ErrorHandler("Saloon name and image are required", 400));
         }
 
-        // const image = await upload_file(file, 'krs');
+        console.log("Saloon Name:", saloonName);
+        console.log("Image Path:", base64Image);
 
-        const cloudinaryResult = await cloudinary.v2.uploader.upload(file.path, {
-            folder: 'krs',resource_type: 'auto',
-          });
+        // Block'u bul
+        const block = await Block.findById(blockId);
+        if (!block) {
+            return next(new ErrorHandler(`Block not found with ID: ${blockId}`, 404));
+        }
 
-        const newSaloon = 
-                {
-                    saloonName: saloonName,
-                    image:{
-                        url: cloudinaryResult.secure_url,
-                        public_id: cloudinaryResult.public_id
-                    }
-                };
+        // Cloudinary yüklemesi
+        const cloudinaryResult = await cloudinary.v2.uploader.upload(base64Image, {
+            folder: "krs",
+            resource_type: "auto",
+        });
 
+        // Yeni Saloon nesnesi oluştur
+        const newSaloon = {
+            saloonName,
+            image: {
+                url: cloudinaryResult.secure_url,
+                public_id: cloudinaryResult.public_id,
+            },
+        };
+
+        // Block'a yeni Saloon'u ekle ve kaydet
         block.saloon.push(newSaloon);
         await block.save();
-        
-        const lastSaloonIndex = block.saloon.length - 1; 
-        const lastSaloon = block.saloon[lastSaloonIndex];
-        console.log("lastSaloon:",lastSaloon);
 
-        const pythonResponse = await sendImageToPython(cloudinaryResult.secure_url,block, res);
+        const lastSaloonIndex = block.saloon.length - 1;
+        const lastSaloon = block.saloon[lastSaloonIndex];
+        console.log("Last Saloon:", lastSaloon);
+        console.log("backend:", lastSaloon.image.url);
+        console.log("cloudinary",cloudinaryResult.secure_url);
+
+        // Python işlemi
+        const pythonResponse = await sendImageToPython(lastSaloon,block, res);
+        console.log("Python Response:", pythonResponse);
 
         if (pythonResponse.success) {
-            return res.status(200).json({ saloonName,imagePath,message: `Saloon created successfully under block ${req.params.id}` });
+            return res.status(200).json({
+                saloonName,
+                imagePath: cloudinaryResult.secure_url,
+                message: `Saloon created successfully under block ${blockId}`,
+            });
         }
-        
+
         return next(new ErrorHandler("Error processing image from Python", 500));
-        
     } catch (error) {
-        console.log(error);
+        console.error("Error while creating saloon:", error);
         return next(new ErrorHandler("Saloon cannot be created", 500));
     }
 });
