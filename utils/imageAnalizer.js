@@ -3,6 +3,7 @@ import path from 'path';
 import axios from 'axios';
 import Seat from '../models/seat.js';
 
+
 // const storage = multer.diskStorage({
 //     destination: (req, file, cb) => {
 //         cb(null, './public/uploads');  // Dosyanın kaydedileceği klasör
@@ -20,14 +21,13 @@ export const upload = multer({
         fileSize: 50 * 1024 * 1024  // Maksimum dosya boyutu 10MB
     },
     fileFilter: (req, file, cb) => {
-        const allowedFileTypes = /jpeg|jpg|png/;
-        const extname = allowedFileTypes.test(path.extname(file.originalname).toLowerCase());
-        const mimeType = allowedFileTypes.test(file.mimetype);
-
+        const allowedFileTypes = ['jpeg', 'jpg', 'png'];
+        const extname = allowedFileTypes.includes(path.extname(file.originalname).toLowerCase().slice(1));
+        const mimeType = allowedFileTypes.some(type => file.mimetype.includes(type));
         if (extname && mimeType) {
-            return cb(null, true);  // Dosya tipi uygun ise
+            return cb(null, true); 
         } else {
-            cb(new Error("Only jpg, jpeg, and png files are allowed."));  // Uygun olmayan dosya türü
+            cb(new Error("Only jpg, jpeg, and png files are allowed."));
         }
     }
 });
@@ -81,3 +81,15 @@ export const sendImageToPython = async (lastSaloon,block, res) => {
         return { success: false, message: "Error processing image" };
     }
 };
+
+// export const upload_file = async (file, folder) => {
+//     return new Promise((resolve, reject) => {
+//         cloudinary.v2.uploader.upload(file, { folder: folder }, (err, result) => {
+//             if (err) return reject(err);
+//             resolve({
+//                 public_id: result.public_id,
+//                 url: result.secure_url
+//             })
+//         })
+//     })
+// }

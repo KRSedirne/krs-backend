@@ -60,7 +60,7 @@ router.route("/block/:id").get(isAuthenticatedUser, isAdmin, adminGetBlockDetail
 router.route("/block/create").post(isAuthenticatedUser, isAdmin, adminCreateBlock);
 router.route("/block/update/:id").put(isAuthenticatedUser, isAdmin, adminUpdateBlock);
 router.route("/block/delete/:id").delete(isAuthenticatedUser, isAdmin, adminDeleteBlock);
-router.route("/block/saloon/create/:id").post(isAuthenticatedUser, isAdmin, upload.single('image'), adminAddSaloon);
+router.route("/block/saloon/create/:id").post(isAuthenticatedUser, isAdmin, upload.single('file'), adminAddSaloon);
 
 //admin QR code routes
 router.route("/checkqr").post(isAuthenticatedUser, isAdmin,isCheckingQr);

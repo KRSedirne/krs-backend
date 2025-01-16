@@ -1,7 +1,7 @@
 import Block from "../../models/block.js";
 import ErrorHandler from "../../utils/errorHandler.js";
 import catchAsyncErrors from "../../middlewares/catchAsyncErrors.js";
-import { sendImageToPython } from "../../utils/imageAnalizer.js";
+import { sendImageToPython} from "../../utils/imageAnalizer.js";
 import cloudinary from "../../configs/cloudinaryConfig.js";
 
 // Admin get all blocks
@@ -85,9 +85,9 @@ export const adminAddSaloon = catchAsyncErrors(async (req, res, next) => {
 
     try {
         const saloonName  = req.body.saloonName;
-        const image = req.file; 
+        const file = req.file; 
         const block = await Block.findById(req.params.id);
-        console.log("imagePath:",image);
+        console.log("imagePath:",file);
         console.log("flag:",block);
         console.log("name:",saloonName);
 
@@ -95,17 +95,19 @@ export const adminAddSaloon = catchAsyncErrors(async (req, res, next) => {
             return  next(new ErrorHandler("Saloon not found", 404));
         }
 
-        const cloudinaryResult = await cloudinary.uploader.upload(image, {
-            folder: 'krs',
+        // const image = await upload_file(file, 'krs');
+
+        const cloudinaryResult = await cloudinary.v2.uploader.upload(file.path, {
+            folder: 'krs',resource_type: 'auto',
           });
 
         const newSaloon = 
                 {
                     saloonName: saloonName,
-                    image:  {
-                    public_id: cloudinaryResult.public_id,
-                    url: cloudinaryResult.secure_url,
-                  }
+                    image:{
+                        url: cloudinaryResult.secure_url,
+                        public_id: cloudinaryResult.public_id
+                    }
                 };
 
         block.saloon.push(newSaloon);
