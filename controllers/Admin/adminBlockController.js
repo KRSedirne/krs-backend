@@ -84,15 +84,17 @@ export const adminDeleteBlock = catchAsyncErrors(async (req, res, next) => {
 export const adminAddSaloon = catchAsyncErrors(async (req, res, next) => {
     try {
         // Body'den gelen verileri al ve kontrol et
-        const { saloonName, url: base64Image } = req.body;
+        const { saloonName, url: base64Image,width,height } = req.body;
         const blockId = req.params.id;
 
-        if (!saloonName || !base64Image) {
-            return next(new ErrorHandler("Saloon name and image are required", 400));
+        if (!saloonName || !base64Image|| !width || !height) {
+            return next(new ErrorHandler("Saloon name, image, width, and height are required", 400));
         }
 
         console.log("Saloon Name:", saloonName);
         console.log("Image Path:", base64Image);
+        console.log("Width:", width);
+        console.log("Height:", height);
 
         // Block'u bul
         const block = await Block.findById(blockId);
@@ -112,6 +114,8 @@ export const adminAddSaloon = catchAsyncErrors(async (req, res, next) => {
             image: {
                 url: cloudinaryResult.secure_url,
                 public_id: cloudinaryResult.public_id,
+                width: parseInt(width, 10),
+                height: parseInt(height, 10),
             },
         };
 
@@ -133,6 +137,10 @@ export const adminAddSaloon = catchAsyncErrors(async (req, res, next) => {
             return res.status(200).json({
                 saloonName,
                 imagePath: cloudinaryResult.secure_url,
+                dimensions: {
+                    width: lastSaloon.image.width,
+                    height: lastSaloon.image.height,
+                },
                 message: `Saloon created successfully under block ${blockId}`,
             });
         }

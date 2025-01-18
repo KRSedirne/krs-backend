@@ -19,6 +19,14 @@ const blockSchema = new mongoose.Schema({
                 public_id: {
                     type: String,
                 },
+                width: {
+                    type: Number,
+                    required: true,
+                },
+                height: {
+                    type: Number,
+                    required: true,
+                }
             }
         }
     ]

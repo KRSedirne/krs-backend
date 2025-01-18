@@ -64,7 +64,7 @@ export const getSaloonImages = catchAsyncErrors(async (req, res, next) => {
       let imagePath = targetSaloon.image.url;
 
       if (imagePath.startsWith("http")) {
-        return res.status(200).json({ url: imagePath });
+        return res.status(200).json({ url: imagePath, width: targetSaloon.image.width, height: targetSaloon.image.height });
       }
   
       return res.status(404).json({ message: "Invalid image URL" });
