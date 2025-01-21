@@ -1,5 +1,6 @@
 import Locker from "../../models/locker.js";
 import Suspended from "../../models/suspended.js";
+import User from "../../models/user.js";
 import ErrorHandler from "../../utils/errorHandler.js";
 import catchAsyncErrors from "../../middlewares/catchAsyncErrors.js";
 
@@ -116,7 +117,6 @@ export const adminReserveLocker = catchAsyncErrors(async (req, res, next) => {
     }
 });
 
-
 export const adminCancelLockerReservation = catchAsyncErrors(async (req, res, next) => {
     try {
         const id = req?.params?.id;
@@ -136,3 +136,22 @@ export const adminCancelLockerReservation = catchAsyncErrors(async (req, res, ne
         return next(new ErrorHandler("Error locker reservation not cancelled.", 500));
     }
 });
+
+//it doesn't exit to Abdullah's code
+export const adminExpandReservation = async (req, res) => {
+    try {
+        const id = req?.params?.id;
+        const locker = await Locker.findOne({ _id: id });
+        if (!locker) {
+            return res.status(404).json({ message: "Locker not Found" });
+        }
+        if (!locker.isBooked) {
+            return res.status(400).json({ message: "This locker isn't reserved. " });
+        }
+        await locker.save();
+        res.status(200).json({ message: "Locker reservation date expanded" });
+    }
+    catch (e) {
+        res.status(400).json({ message: "Error reservation cannot be expanded" });
+    }
+}

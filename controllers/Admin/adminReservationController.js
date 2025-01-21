@@ -71,6 +71,7 @@ export const adminCreateReservation = catchAsyncErrors(async (req, res, next) =>
 
         const reservation = {
             ...req?.body,
+            reservationDate: new Date(new Date().getTime()),
             qrCode: await generateQr(req?.body?.user),
             expireTime: new Date(Date.now() + 90 * 60 * 1000)
         }
@@ -135,7 +136,6 @@ export const adminCancelReservation = catchAsyncErrors(async (req, res, next) =>
         return next(new ErrorHandler("Reservation not found", 404));
     }
 });
-
 
 // Admin Get reservation expire time
 export const adminGetReservationExpireTime = catchAsyncErrors(async (req, res, next) => {

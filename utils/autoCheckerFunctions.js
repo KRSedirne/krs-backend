@@ -47,13 +47,17 @@ export const autoEndReservation = catchAsyncErrors(async () => {
                     return res.status(200).json({ message: "Reservation ended." }); // check this response on frontend
                 }
                 if (!reservation.isCheckIn) {
-                    const data = {
-                        user: reservation.user,
-                        type: "reservation",
-                        description: "User didn't check-in on time. Suspended for a 2 week.",
-                        expireTime: (now.getTime() + (7 * 24 * 60 * 60 * 1000))
+                    const suspendedUser = await Suspended.findOne({ user: reservation.user, type: "reservation" });
+                    if (!suspendedUser) {
+                        const data = {
+                            user: reservation.user,
+                            type: "reservation",
+                            description: "User didn't check-in on time. Suspended for a 2 week.",
+                            expireTime: (now.getTime() + (7 * 24 * 60 * 60 * 1000))
+                        }
+                        await Suspended.create(data);
                     }
-                    await Suspended.create(data);
+
                 }
             }
         });

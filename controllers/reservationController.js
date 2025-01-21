@@ -67,7 +67,9 @@ export const createReservation = catchAsyncErrors(async (req, res, next) => {
 
         const reservation = {
             ...req?.body,
+            reservationDate: new Date().getTime(),
             qrCode: await generateQr(req?.body?.user),
+            expireTime: new Date(new Date().getTime() + 90 * 60 * 1000)
         }
 
         const response = await Reservation.create(reservation);
@@ -241,5 +243,47 @@ export const remainReservation = catchAsyncErrors(async (req, res, next) => {
 
     } catch (error) {
         return next(new ErrorHandler("Reservation cannot be remain ,something is gone wrong...", 500));
+    }
+});
+
+export const getCurrentUserReservation = catchAsyncErrors(async (req, res, next) => {
+    try {
+        const user = req?.user?._id;
+        const reservation = await Reservation.findOne({ user: user });
+        const seat = await Seat.findById(reservation?.seat);
+
+        if (!seat) {
+            return next(new ErrorHandler("Seat not found", 404));
+        }
+
+        if (!reservation) {
+            return res.status(200).json({ message: "User doesn't have any reservation" });
+        }
+
+        if (reservation.expireTime < new Date()) {
+            return next(new ErrorHandler(`Reservation expired`, 400));
+        }
+
+        const reservationDate = reservation.reservationDate.toDateString() + " " + reservation.reservationDate.toLocaleTimeString();
+        const expireTime = reservation.expireTime.toDateString() + " " + reservation.expireTime.toLocaleTimeString();
+
+        const response = {
+            id: reservation._id,
+            user: reservation.user,
+            reservationDate: reservationDate,
+            qrCode: reservation.qrCode,
+            outReason: reservation.outReason,
+            isCheckIn: reservation.isCheckIn,
+            expireTime: expireTime,
+            seat: seat.seatNumber,
+            block: seat.block,
+            saloon: seat.saloonName
+        }
+
+
+
+        return res.status(200).json({ response });
+    } catch (error) {
+        return next(new ErrorHandler(`Reservation not found ${error.message}`, 404));
     }
 });

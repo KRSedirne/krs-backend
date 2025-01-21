@@ -35,10 +35,10 @@ export const getLockerDetails = catchAsyncErrors(async (req, res, next) => {
 export const reserveLocker = catchAsyncErrors(async (req, res, next) => {
     try {
         const id = req?.params?.id;
-        const user = req?.body?.user;
-        const locker = await Locker.findOne({ _id: id });
+        const user = req?.user;
+        const locker = await Locker.findById(id);
 
-        const isSuspended = await Punishment.findOne({ user: user, type: "locker" })
+        const isSuspended = await Suspended.findOne({ user: user, type: "locker" })
 
         if (isSuspended) {
             return next(new ErrorHandler("Error user is suspended.", 401));
@@ -47,7 +47,7 @@ export const reserveLocker = catchAsyncErrors(async (req, res, next) => {
         if (!locker) {
             return next(new ErrorHandler(`Couldn\'t find any locker id match with ${id}`, 404));
         }
-        if (Locker.findOne({ user: user })) {
+        if (await Locker.findOne({ user: user, isBooked: true })) {
             return next(new ErrorHandler("Error user has active locker reservation.", 409));
         }
         if (locker.isBooked) {
@@ -60,7 +60,25 @@ export const reserveLocker = catchAsyncErrors(async (req, res, next) => {
         res.status(200).json({ message: `Locker reserved by ${locker.user}`, locker });
     }
     catch (e) {
-        return next(new ErrorHandler(`"Error locker cannot be reserved"`, 500));
+        return next(new ErrorHandler(`Error locker cannot be reserved`, 500));
+    }
+});
+
+export const getCurrentUserLocker = catchAsyncErrors(async (req, res, next) => {
+    try {
+        const user = req?.user?._id;
+        const locker = await Locker.findOne({ user: user });
+        if (!locker) {
+            return next(new ErrorHandler("Locker not found", 404));
+        }
+
+        if (locker.isBooked && locker.updatedAt < new Date(new Date().getTime())) {
+            return res.status(200).json({ locker });
+        }
+        // buraya daha kod gelicek
+
+    } catch (e) {
+        return next(new ErrorHandler("Locker not found", 404));
     }
 });
 

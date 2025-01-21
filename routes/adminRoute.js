@@ -6,7 +6,6 @@ import { adminGetAllLockers, adminGetLockerDetails, adminCreateLocker, adminUpda
 import { adminGetAllReservations, adminGetReservationDetails, adminCreateReservation, adminUpdateReservation, adminDeleteReservation, adminCancelReservation, adminGetReservationExpireTime, adminAddOutReason, adminGetQRCode, adminRemainReservation } from '../controllers/admin/adminReservationController.js';
 import { adminGetAllSeats, adminGetSeatDetails, adminCreateSeat, adminUpdateSeat, adminDeleteSeat } from '../controllers/admin/adminSeatController.js';
 import { adminGetAllBlocks, adminGetBlockDetails, adminCreateBlock, adminUpdateBlock, adminDeleteBlock, adminAddSaloon } from '../controllers/admin/adminBlockController.js';
-import {upload} from '../utils/imageAnalizer.js';
 import { isCheckingQr } from '../controllers/Admin/adminController.js';
 
 const router = express.Router();

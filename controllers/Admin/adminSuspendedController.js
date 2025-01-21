@@ -6,10 +6,26 @@ import catchAsyncErrors from "../../middlewares/catchAsyncErrors.js";
 // Admin Get all suspendeds
 export const adminGetAllSuspendeds = catchAsyncErrors(async (req, res, next) => {
     try {
-        const response = await Suspended.find();
+        const suspendeds = await Suspended.find();
 
-        if (response.length === 0) {
-            return next(new ErrorHandler("Suspendeds not found", 404));
+        if (suspendeds.length === 0) {
+            return res.status(200).json({ message: "Suspendeds not found" });
+        }
+
+        let user = null;
+        let response = [];
+        let data = {};
+        for (let suspended of suspendeds) {
+            user = await User.findById(suspended?.user);
+            data = {
+                id: suspended?._id,
+                name: user?.name,
+                lastname: user?.lastname,
+                type: suspended?.type,
+                description: suspended?.description,
+                expireTime: suspended?.expireTime
+            }
+            response.push(data);
         }
 
         return res.status(200).json({ response });
@@ -45,7 +61,7 @@ export const adminCreateSuspended = catchAsyncErrors(async (req, res, next) => {
         //     return next(new ErrorHandler("User not found with this ID", 404));
         // }
 
-        let suspendTime = (req?.body?.expireTime)
+        let suspendTime = (new Date()).getTime();
 
         if (req?.body?.type === "reservation") {
             suspendTime += (14 * 24 * 60 * 60 * 1000);
@@ -54,13 +70,18 @@ export const adminCreateSuspended = catchAsyncErrors(async (req, res, next) => {
             suspendTime += (5 * 24 * 60 * 60 * 1000);
         }
 
+        const data = {
+            ...req?.body,
+            expireTime: suspendTime
+        }
+
         const isSuspendedExist = await Suspended.findOne({ user: req?.params?.id, type: req?.body.type });
 
         if (isSuspendedExist && (suspendTime > new Date())) {
             return next(new ErrorHandler("Suspended already exist", 409));
         }
 
-        const response = await Suspended.create(req?.body);
+        const response = await Suspended.create(data);
         return res.status(200).json({ response, message: "Suspended created successfully" });
     } catch (error) {
         return next(new ErrorHandler("Suspended couldn't create, something is gone wrong...", 500));
