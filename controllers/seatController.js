@@ -83,3 +83,4 @@ export const deleteSeat = catchAsyncErrors(async (req, res, next) => {
     }
 });
 
+// update a seat

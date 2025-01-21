@@ -243,3 +243,5 @@ export const remainReservation = catchAsyncErrors(async (req, res, next) => {
         return next(new ErrorHandler("Reservation cannot be remain ,something is gone wrong...", 500));
     }
 });
+
+// update reservation
