@@ -82,4 +82,3 @@ export const adminDeleteSeat = catchAsyncErrors(async (req, res, next) => {
         return next(new ErrorHandler("Seat not found with this ID", 404));
     }
 });
-

@@ -60,4 +60,5 @@ router.route("/block/update/:id").put(isAuthenticatedUser, isAdmin, adminUpdateB
 router.route("/block/delete/:id").delete(isAuthenticatedUser, isAdmin, adminDeleteBlock);
 router.route("/block/saloon/create/:id").post(isAuthenticatedUser, isAdmin, adminAddSaloon);
 
-export default router; 
+export default router;
+

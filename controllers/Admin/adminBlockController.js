@@ -95,3 +95,5 @@ export const adminAddSaloon = catchAsyncErrors(async (req, res, next) => {
         return next(new ErrorHandler("Saloon couldn't create, something is gone wrong...", 500));
     }
 });
+
+

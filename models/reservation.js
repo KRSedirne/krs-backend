@@ -51,3 +51,4 @@ const reservationSchema = new mongoose.Schema({
 }, { timestamps: true })
 
 export default mongoose.model("Reservation", reservationSchema);
+

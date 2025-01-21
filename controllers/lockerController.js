@@ -64,4 +64,3 @@ export const reserveLocker = catchAsyncErrors(async (req, res, next) => {
         return next(new ErrorHandler(`"Error locker cannot be reserved"`, 500));
     }
 });
-

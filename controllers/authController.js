@@ -122,3 +122,5 @@ export const resetPassword = catchAsyncErrors(async (req, res, next) => {
     return next(new ErrorHandler(`user couldn't reset password. ${error.message}`, 500));
   }
 });
+
+

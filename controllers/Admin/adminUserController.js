@@ -96,3 +96,4 @@ export const adminGetAllUsers = catchAsyncErrors(async (req, res, next) => {
         return next(new ErrorHandler("Users not found", 404));
     }
 });
+

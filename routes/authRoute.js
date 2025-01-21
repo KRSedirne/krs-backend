@@ -9,4 +9,5 @@ router.route('/logout').get(logout)
 router.route('/password/forget').post(forgetPassword);
 router.route('/password/reset').post(resetPassword);
 
-export default router; 
+export default router;
+

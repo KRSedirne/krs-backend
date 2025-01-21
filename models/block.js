@@ -20,3 +20,4 @@ const blockSchema = new mongoose.Schema({
 });
 
 export default mongoose.model("Block", blockSchema);
+

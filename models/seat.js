@@ -21,3 +21,4 @@ const seatSchema = new mongoose.Schema({
 })
 
 export default mongoose.model("Seat", seatSchema);
+

@@ -22,3 +22,4 @@ const suspendedSchema = new mongoose.Schema({
 })
 
 export default mongoose.model("Suspendeds", suspendedSchema);
+

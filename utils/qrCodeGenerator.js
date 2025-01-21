@@ -50,5 +50,3 @@ export const isCheckingQr = catchAsyncErrors(async (req, res) => {
         return next(new ErrorHandler('QR code validation failed!', 500));
     }
 });
-
-

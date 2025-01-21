@@ -30,3 +30,5 @@ export const getBlockDetails = catchAsyncErrors(async (req, res, next) => {
         return next(new ErrorHandler("Block not found with this ID", 404));
     }
 });
+
+

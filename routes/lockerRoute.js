@@ -9,3 +9,5 @@ router.route("/locker/:id").get(isAuthenticatedUser, getLockerDetails);
 router.route("/locker/reservation/:id").put(isAuthenticatedUser, reserveLocker);
 
 export default router;
+
+

@@ -34,3 +34,4 @@ const sendMail = catchAsyncErrors(async (to, subject, htmlContent) => {
 });
 
 export default sendMail;
+

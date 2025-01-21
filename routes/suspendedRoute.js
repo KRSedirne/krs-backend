@@ -11,3 +11,4 @@ router.route('/suspended/delete/:id').delete(isAuthenticatedUser, deleteSuspende
 router.route('/suspended/checkmanually/:id').get(isAuthenticatedUser, manuallyCheckSuspended)
 
 export default router;
+

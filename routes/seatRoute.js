@@ -11,3 +11,4 @@ router.route('/seat/update/:id').put(isAuthenticatedUser, updateSeat)
 router.route('/seat/delete/:id').delete(isAuthenticatedUser, deleteSeat)
 
 export default router;
+

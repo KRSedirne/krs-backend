@@ -16,3 +16,4 @@ router.route('/reservation/qrcode/:id').get(isAuthenticatedUser, getQRCode)
 router.route('/reservation/remain/:id').put(isAuthenticatedUser, remainReservation)
 
 export default router;
+

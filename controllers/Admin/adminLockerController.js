@@ -154,3 +154,4 @@ export const adminExpandReservation = async (req, res) => {
         res.status(400).json({ message: "Error reservation cannot be expanded" });
     }
 }
+

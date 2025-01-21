@@ -12,3 +12,4 @@ export const connectDatabase = () => {
         console.log(`MongoDB database connected with HOST ${con?.connection?.host}`);
     });
 }
+
