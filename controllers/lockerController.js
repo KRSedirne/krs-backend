@@ -1,4 +1,5 @@
 import Locker from "../models/locker.js";
+import Suspended from "../models/suspended.js";
 import ErrorHandler from "../utils/errorHandler.js";
 import catchAsyncErrors from "../middlewares/catchAsyncErrors.js";
 
@@ -21,7 +22,7 @@ export const getAllLockers = catchAsyncErrors(async (req, res, next) => {
 export const getLockerDetails = catchAsyncErrors(async (req, res, next) => {
     try {
         const id = req?.params?.id;
-        const response = await Locker.findOne({ _id: id });
+        const response = await Locker.findById(id);
         if (!response) {
             return next(new ErrorHandler(`Couldn\'t find any locker id match with ${id}`, 404));
         }
@@ -81,4 +82,3 @@ export const getCurrentUserLocker = catchAsyncErrors(async (req, res, next) => {
         return next(new ErrorHandler("Locker not found", 404));
     }
 });
-

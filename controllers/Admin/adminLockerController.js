@@ -35,6 +35,24 @@ export const adminGetLockerDetails = catchAsyncErrors(async (req, res, next) => 
     }
 });
 
+export const adminGetLockerDetailbyEmail = catchAsyncErrors(async (req, res, next) => {
+    
+    const email= req?.body.email;
+    console.log("email:",email);
+    const user=await User.findOne({email:email});
+    const userId=user._id;
+try {
+    const response = await Locker.findOne({user:userId});
+    if (!response) {
+        return next(new ErrorHandler("Locker not found", 404));
+    }
+    return res.status(200).json({ response });
+}
+catch (e) {
+    return next(new ErrorHandler("Locker not found", 404));
+}
+});
+
 //create a new locker
 export const adminCreateLocker = catchAsyncErrors(async (req, res, next) => {
     try {
@@ -84,28 +102,31 @@ export const adminDeleteLocker = catchAsyncErrors(async (req, res, next) => {
     }
 });
 
-export const adminReserveLocker = catchAsyncErrors(async (req, res, next) => {
+export const adminReserveLocker = async (req, res) => {
     try {
-        const id = req?.params?.id;
-        const user = req?.body?.user;
-        const isSuspended = await Suspended.findOne({ user: user, type: "locker" })
-
-        const locker = await Locker.findById(id);
+        const id = req?.params?.id; 
+        const userEmail = req?.body?.email;
+        const user=await User.findOne({email:userEmail});
+        const isSuspended=await Suspended.findOne({user:user,type:"locker"})
+         const locker = await Locker.findById(id);
+         if(!user){
+            return res.status(404).json({message:"User not found"});
+         }
         if (!locker) {
-            return next(new ErrorHandler("Locker not found", 404));
+            return res.status(404).json({ message: "Locker not found" });
         }
         if (locker.isBooked) {
-            return next(new ErrorHandler("This locker is already reserved.", 409));
+            return res.status(400).json({ message: "This locker is already reserved." });
         }
         const doesUserHaveResLocker = await Locker.findOne({ user: user, isBooked: true });
 
         if (doesUserHaveResLocker) {
-            return next(new ErrorHandler("User already has an active reservation...", 409));
+            return res.status(400).json({ message: "Error: User already has an active reservation." });
         }
-        if (isSuspended) {
-            return next(new ErrorHandler("user's request decline. User suspended", 400))
+        if(isSuspended){
+            return res.status(400).json({message:"Error user's request decline. User suspended"});
         }
-
+        
 
         locker.isBooked = true;
         locker.user = user;
@@ -113,9 +134,10 @@ export const adminReserveLocker = catchAsyncErrors(async (req, res, next) => {
 
         res.status(200).json({ message: `Locker reserved by ${locker.user}`, locker });
     } catch (e) {
-        return next(new ErrorHandler("Locker cannot be reserved.", 500));
+        console.error("Error:", e);
+        res.status(500).json({ message: "Locker cannot be reserved.", error: e.message });
     }
-});
+};
 
 export const adminCancelLockerReservation = catchAsyncErrors(async (req, res, next) => {
     try {
@@ -136,22 +158,3 @@ export const adminCancelLockerReservation = catchAsyncErrors(async (req, res, ne
         return next(new ErrorHandler("Error locker reservation not cancelled.", 500));
     }
 });
-
-//it doesn't exit to Abdullah's code
-export const adminExpandReservation = async (req, res) => {
-    try {
-        const id = req?.params?.id;
-        const locker = await Locker.findOne({ _id: id });
-        if (!locker) {
-            return res.status(404).json({ message: "Locker not Found" });
-        }
-        if (!locker.isBooked) {
-            return res.status(400).json({ message: "This locker isn't reserved. " });
-        }
-        await locker.save();
-        res.status(200).json({ message: "Locker reservation date expanded" });
-    }
-    catch (e) {
-        res.status(400).json({ message: "Error reservation cannot be expanded" });
-    }
-}

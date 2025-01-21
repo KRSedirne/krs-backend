@@ -2,11 +2,11 @@ import express from 'express';
 import { adminCreateUser, adminDeleteUser, adminGetAllUsers, adminGetUserDetails, adminUpdateUser } from '../controllers/admin/adminUserController.js';
 import { isAuthenticatedUser, isAdmin } from '../middlewares/authMiddleware.js';
 import { adminGetAllSuspendeds, adminGetSuspendedDetails, adminCreateSuspended, adminUpdateSuspended, adminDeleteSuspended, adminManuallyCheckSuspended } from '../controllers/admin/adminSuspendedController.js';
-import { adminGetAllLockers, adminGetLockerDetails, adminCreateLocker, adminUpdateLocker, adminDeleteLocker, adminReserveLocker, adminCancelLockerReservation } from '../controllers/admin/adminLockerController.js';
+import { adminGetAllLockers, adminGetLockerDetails, adminCreateLocker, adminUpdateLocker, adminDeleteLocker, adminReserveLocker, adminCancelLockerReservation, adminGetLockerDetailbyEmail } from '../controllers/admin/adminLockerController.js';
 import { adminGetAllReservations, adminGetReservationDetails, adminCreateReservation, adminUpdateReservation, adminDeleteReservation, adminCancelReservation, adminGetReservationExpireTime, adminAddOutReason, adminGetQRCode, adminRemainReservation } from '../controllers/admin/adminReservationController.js';
 import { adminGetAllSeats, adminGetSeatDetails, adminCreateSeat, adminUpdateSeat, adminDeleteSeat } from '../controllers/admin/adminSeatController.js';
 import { adminGetAllBlocks, adminGetBlockDetails, adminCreateBlock, adminUpdateBlock, adminDeleteBlock, adminAddSaloon } from '../controllers/admin/adminBlockController.js';
-import { isCheckingQr } from '../controllers/Admin/adminController.js';
+import { isCheckingQr, adminCheckInManually } from '../controllers/Admin/adminController.js';
 
 const router = express.Router();
 
@@ -27,6 +27,7 @@ router.route("/suspended/checkmanually/:id").get(isAuthenticatedUser, isAdmin, a
 
 // Admin Locker routes
 router.route("/lockers").get(isAuthenticatedUser, isAdmin, adminGetAllLockers);
+router.route("/locker/email").get(isAuthenticatedUser, isAdmin, adminGetLockerDetailbyEmail);
 router.route("/locker/:id").get(isAuthenticatedUser, isAdmin, adminGetLockerDetails);
 router.route("/locker/create").post(isAuthenticatedUser, isAdmin, adminCreateLocker);
 router.route("/locker/update/:id").put(isAuthenticatedUser, isAdmin, adminUpdateLocker);
@@ -63,5 +64,6 @@ router.route("/block/saloon/create/:id").post(isAuthenticatedUser, isAdmin,admin
 
 //admin QR code routes
 router.route("/checkqr").post(isAuthenticatedUser, isAdmin,isCheckingQr);
+router.route("/checkqr/manuel").put(isAuthenticatedUser, isAdmin,adminCheckInManually);
 
 export default router; 
