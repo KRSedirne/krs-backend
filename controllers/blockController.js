@@ -1,7 +1,6 @@
 import Block from "../models/block.js";
 import ErrorHandler from "../utils/errorHandler.js";
 import catchAsyncErrors from "../middlewares/catchAsyncErrors.js";
-import Seat from "../models/seat.js";
 
 // Admin get all blocks
 export const getAllBlocks = catchAsyncErrors(async (req, res, next) => {

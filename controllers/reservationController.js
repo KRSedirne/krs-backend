@@ -2,7 +2,9 @@ import Reservation from '../models/reservation.js';
 import ErrorHandler from "../utils/errorHandler.js";
 import catchAsyncErrors from "../middlewares/catchAsyncErrors.js";
 import Suspended from '../models/suspended.js';
+import { checkUserBreakExpireTime } from '../utils/checkUserBreakExpireTime.js';
 import { generateQr } from '../utils/qrCodeGenerator.js';
+import Seat from '../models/seat.js';
 
 
 // Get all reservations
@@ -205,8 +207,10 @@ export const addOutReason = catchAsyncErrors(async (req, res, next) => {
 // Get QR Code
 export const getQRCode = catchAsyncErrors(async (req, res, next) => {
     try {
-
-        const response = await Reservation.findById(req?.params?.id);
+        //deletable code
+        const user=req?.user;
+         const response=await Reservation.findOne({user:user});
+        //const response = await Reservation.findById(req?.params?.id);
 
         if (!response) {
             return next(new ErrorHandler("Reservation not found", 404));
@@ -219,6 +223,7 @@ export const getQRCode = catchAsyncErrors(async (req, res, next) => {
         return res.status(200).json({ qrCode: response?.qrCode });
 
     } catch (error) {
+        console.log(error);
         return next(new ErrorHandler("Something is gone wrong...", 500));
     }
 });

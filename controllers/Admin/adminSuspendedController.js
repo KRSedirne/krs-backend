@@ -1,7 +1,7 @@
 import Suspended from "../../models/suspended.js";
 import ErrorHandler from "../../utils/errorHandler.js";
 import catchAsyncErrors from "../../middlewares/catchAsyncErrors.js";
-// import User from "../../models/user.js";
+import User from "../../models/user.js";
 
 // Admin Get all suspendeds
 export const adminGetAllSuspendeds = catchAsyncErrors(async (req, res, next) => {

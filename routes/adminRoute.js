@@ -27,7 +27,7 @@ router.route("/suspended/checkmanually/:id").get(isAuthenticatedUser, isAdmin, a
 
 // Admin Locker routes
 router.route("/lockers").get(isAuthenticatedUser, isAdmin, adminGetAllLockers);
-router.route("/locker/email").get(isAuthenticatedUser, isAdmin, adminGetLockerDetailbyEmail);
+router.route("/locker/email").post(isAuthenticatedUser, isAdmin, adminGetLockerDetailbyEmail);
 router.route("/locker/:id").get(isAuthenticatedUser, isAdmin, adminGetLockerDetails);
 router.route("/locker/create").post(isAuthenticatedUser, isAdmin, adminCreateLocker);
 router.route("/locker/update/:id").put(isAuthenticatedUser, isAdmin, adminUpdateLocker);

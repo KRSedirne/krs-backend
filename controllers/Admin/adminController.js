@@ -1,6 +1,7 @@
 import ErrorHandler from '../../utils/errorHandler.js';
 import catchAsyncErrors from '../../middlewares/catchAsyncErrors.js';
 import Reservation from '../../models/reservation.js';
+import User from '../../models/user.js';
 
 export const isCheckingQr = catchAsyncErrors(async (req, res, next) => {
     const { qrCode } = req.body;
