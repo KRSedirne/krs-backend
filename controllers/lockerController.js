@@ -68,17 +68,28 @@ export const reserveLocker = catchAsyncErrors(async (req, res, next) => {
 export const getCurrentUserLocker = catchAsyncErrors(async (req, res, next) => {
     try {
         const user = req?.user?._id;
-        const locker = await Locker.findOne({ user: user });
-        if (!locker) {
-            return next(new ErrorHandler("Locker not found", 404));
+        const response = await Locker.findOne({ user: user });
+        if (!response) {
+            return res.status(200).json({ message: "User doesn't have any reservation" });
         }
 
-        if (locker.isBooked && locker.updatedAt < new Date(new Date().getTime())) {
+        if (response.isBooked && (response.updatedAt < new Date(new Date().getTime()))) {
+
+            const reservationDate = convertTime(new Date(response.updatedAt), "tr", "DD MMMM YYYY, HH:mm:ss");
+            const expireDate = convertTime(new Date(response.updatedAt + 5 * 24 * 60 * 60 * 1000), "tr", "DD MMMM YYYY, HH:mm:ss");
+
+            const locker = {
+                lockerNumber: response.lockerNumber,
+                user: response.user,
+                isBooked: response.isBooked,
+                reservationDate: reservationDate,
+                expireDate: expireDate,
+            }
+
             return res.status(200).json({ locker });
         }
-        // buraya daha kod gelicek
 
-    } catch (e) {
+    } catch (error) {
         return next(new ErrorHandler("Locker not found", 404));
     }
 });

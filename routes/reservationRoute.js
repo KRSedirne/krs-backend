@@ -10,7 +10,6 @@ router.route(`/reservation/current`).get(isAuthenticatedUser, getCurrentUserRese
 router.route('/reservation/:id').get(isAuthenticatedUser, getReservationDetails)
 router.route('/reservation/create').post(isAuthenticatedUser, createReservation)
 router.route('/reservation/update/:id').put(isAuthenticatedUser, updateReservation)
-router.route('/reservation/delete/:id').delete(isAuthenticatedUser, deleteReservation)
 router.route('/reservation/cancel/:id').delete(isAuthenticatedUser, cancelReservation)
 router.route('/reservation/expiretime/:id').get(isAuthenticatedUser, getReservationExpireTime)
 router.route('/reservation/outreason/:id').put(isAuthenticatedUser, addOutReason)

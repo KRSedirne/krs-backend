@@ -24,6 +24,7 @@
     "image-size": "^1.2.0",
     "jsonwebtoken": "^9.0.2",
     "jsqr": "^1.4.0",
+    "moment": "^2.30.1",
     "mongoose": "^8.7.3",
     "mongose": "^0.0.2-security",
     "morgan": "^1.10.0",

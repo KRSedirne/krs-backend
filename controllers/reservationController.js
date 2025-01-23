@@ -5,6 +5,9 @@ import Suspended from '../models/suspended.js';
 import { checkUserBreakExpireTime } from '../utils/autoCheckerFunctions.js';
 import { generateQr } from '../utils/qrCodeGenerator.js';
 import Seat from '../models/seat.js';
+import moment from 'moment';
+import '../node_modules/moment/locale/tr.js';
+import { convertTime } from '../utils/time.js';
 
 
 // Get all reservations
@@ -71,7 +74,6 @@ export const createReservation = catchAsyncErrors(async (req, res, next) => {
 
         seat.isBooked = true;
         await seat.save();
-
         const response = await Reservation.create(reservation);
         return res.status(201).json({ response, message: "Reservation created successfully" });
 
@@ -102,29 +104,24 @@ export const updateReservation = catchAsyncErrors(async (req, res, next) => {
     }
 });
 
-// Delete a reservation
-export const deleteReservation = catchAsyncErrors(async (req, res, next) => {
-    try {
-
-        let reservation = await Reservation.findById(req?.params.id);
-        await reservation.deleteOne();
-
-        return res.status(204).json({ message: `Reservation deleted successfully ${req?.params?.id}` });
-    } catch (error) {
-        return next(new ErrorHandler("Reservation not found", 404));
-    }
-});
-
 // Cancel a reservation
 export const cancelReservation = catchAsyncErrors(async (req, res, next) => {
     try {
 
         let reservation = await Reservation.findById(req?.params?.id);
 
-        if ((reservation.reservationDate - (24 * 60 * 60 * 1000)) < new Date()) {
-            return next(new ErrorHandler("Reservation cannot be delete last day", 400));
+        if (!reservation) {
+            return next(new ErrorHandler("Reservation not found", 404));
         }
 
+        const seat = await Seat.findById(reservation?.seat);
+
+        if (!seat) {
+            return next(new ErrorHandler("Seat not found", 404));
+        }
+
+        seat.isBooked = false;
+        await seat.save();
         await reservation.deleteOne();
 
         return res.status(204).json({ message: `Reservation deleted successfully ${req?.params?.id}` });
@@ -138,7 +135,7 @@ export const cancelReservation = catchAsyncErrors(async (req, res, next) => {
 export const getReservationExpireTime = catchAsyncErrors(async (req, res, next) => {
     try {
 
-        const response = await Reservation.findById(req?.params?.id);
+        const response = await Reservation.findById(req?.body?.id);
 
         if (!response) {
             return next(new ErrorHandler("Reservation not found", 404));
@@ -168,6 +165,8 @@ export const addOutReason = catchAsyncErrors(async (req, res, next) => {
 
     try {
 
+        console.log(req?.params?.id);
+
         const response = await Reservation.findById(req?.params?.id);
 
         if (!response) {
@@ -181,23 +180,26 @@ export const addOutReason = catchAsyncErrors(async (req, res, next) => {
         const outReason = {
             type: req?.body?.type,
             date: new Date(),
-            time: req?.body?.time
+            time: req?.body?.time,
+            description: req?.body?.description
         }
 
         setTimeout(() => {
             checkUserBreakExpireTime(req?.params?.id, outReason);
         }, req?.body?.time * 60 * 1000);
 
+        response.qrCode = await generateQr(response?.user);
         response?.outReason.push(outReason);
 
         response.expireTime = response.expireTime + (req?.body?.time * 60 * 1000);
 
+        response.isCheckIn = false;
         await response.save();
 
         return res.status(200).json({ response, message: "Out Reason added successfully" });
 
     } catch (error) {
-        return next(new ErrorHandler("Something is gone wrong...", 500));
+        return next(new ErrorHandler(`Something is gone wrong... ${error.message}`, 500));
     }
 
 });
@@ -206,8 +208,8 @@ export const addOutReason = catchAsyncErrors(async (req, res, next) => {
 export const getQRCode = catchAsyncErrors(async (req, res, next) => {
     try {
         //deletable code
-        const user=req?.user;
-         const response=await Reservation.findOne({user:user});
+        const user = req?.user;
+        const response = await Reservation.findOne({ user: user });
         //const response = await Reservation.findById(req?.params?.id);
 
         if (!response) {
@@ -218,7 +220,7 @@ export const getQRCode = catchAsyncErrors(async (req, res, next) => {
             return next(new ErrorHandler("Reservation expired", 400));
         }
 
-        return res.status(200).json({ qrCode: response?.qrCode , expireTime: response?.expireTime });
+        return res.status(200).json({ qrCode: response?.qrCode });
 
     } catch (error) {
         console.log(error);
@@ -240,12 +242,26 @@ export const remainReservation = catchAsyncErrors(async (req, res, next) => {
             return next(new ErrorHandler("User is not in the library", 400));
         }
 
-        response.expireTime = (response?.expireTime + (req?.body?.time * 60 * 1000));
+        response.expireTime = new Date(new Date(response?.expireTime).getTime() + (90 * 60 * 1000));
+        await response.save();
 
-        return res.status(200).json({ response, message: `Reservation remain successfully, ${req?.body?.time / 60} hour` });
+        const reservationDate = convertTime(response.reservationDate, 'tr', 'dddd, D MMMM YYYY HH:mm:ss');
+        const expireDate = convertTime(response.expireTime, 'tr', 'dddd, D MMMM YYYY HH:mm:ss');
+
+        const reservation = {
+            id: response._id,
+            user: response.user,
+            reservationDate: reservationDate,
+            qrCode: response.qrCode,
+            outReason: response.outReason,
+            isCheckIn: response.isCheckIn,
+            expireTime: expireDate
+        }
+
+        return res.status(200).json({ response, message: `Reservation remain successfully, 1.5 hour `});
 
     } catch (error) {
-        return next(new ErrorHandler("Reservation cannot be remain ,something is gone wrong...", 500));
+        return next(new ErrorHandler(`Reservation cannot be remain ,something is gone wrong... ${error.message}`, 500));
     }
 });
 
@@ -255,10 +271,11 @@ export const getCurrentUserReservation = catchAsyncErrors(async (req, res, next)
         const reservation = await Reservation.findOne({ user: user });
         const seat = await Seat.findById(reservation?.seat);
 
+
         if (!reservation) {
             return res.status(200).json({ message: "User doesn't have any reservation" });
         }
-        
+
         if (!seat) {
             return next(new ErrorHandler("Seat not found", 404));
         }
@@ -267,10 +284,8 @@ export const getCurrentUserReservation = catchAsyncErrors(async (req, res, next)
             return next(new ErrorHandler(`Reservation expired`, 400));
         }
 
-        let reservationDate = reservation.reservationDate.toDateString() + " " + reservation.reservationDate.toLocaleTimeString('tr-TR', { timeZone: 'Europe/Istanbul', });
-        let expireTime = reservation.expireTime.toDateString() + " " + reservation.expireTime.toLocaleTimeString();
-        reservationDate = moment(reservationDate).format('dddd, D MMMM YYYY HH:mm:ss')
-        expireTime = moment(expireTime).format('dddd, D MMMM YYYY HH:mm:ss')
+        const reservationDate = convertTime(reservation.reservationDate, 'tr', 'dddd, D MMMM YYYY HH:mm:ss');
+        const expireTime = convertTime(reservation.expireTime, 'tr', 'dddd, D MMMM YYYY HH:mm:ss');
 
         const response = {
             id: reservation._id,
