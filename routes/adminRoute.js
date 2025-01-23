@@ -5,7 +5,7 @@ import { adminGetAllSuspendeds, adminGetSuspendedDetails, adminCreateSuspended, 
 import { adminGetAllLockers, adminGetLockerDetails, adminCreateLocker, adminUpdateLocker, adminDeleteLocker, adminReserveLocker, adminCancelLockerReservation, adminGetLockerDetailbyEmail } from '../controllers/admin/adminLockerController.js';
 import { adminGetAllReservations, adminGetReservationDetails, adminCreateReservation, adminUpdateReservation, adminDeleteReservation, adminCancelReservation, adminGetReservationExpireTime, adminAddOutReason, adminGetQRCode, adminRemainReservation } from '../controllers/admin/adminReservationController.js';
 import { adminGetAllSeats, adminGetSeatDetails, adminCreateSeat, adminUpdateSeat, adminDeleteSeat } from '../controllers/admin/adminSeatController.js';
-import { adminGetAllBlocks, adminGetBlockDetails, adminCreateBlock, adminUpdateBlock, adminDeleteBlock, adminAddSaloon } from '../controllers/admin/adminBlockController.js';
+import { adminGetAllBlocks, adminGetBlockDetails, adminCreateBlock, adminUpdateBlock, adminDeleteBlock, adminAddSaloon, adminDeleteSaloonById, adminGetSaloonById } from '../controllers/admin/adminBlockController.js';
 import { isCheckingQr, adminCheckInManually } from '../controllers/Admin/adminController.js';
 
 const router = express.Router();
@@ -61,6 +61,8 @@ router.route("/block/create").post(isAuthenticatedUser, isAdmin, adminCreateBloc
 router.route("/block/update/:id").put(isAuthenticatedUser, isAdmin, adminUpdateBlock);
 router.route("/block/delete/:id").delete(isAuthenticatedUser, isAdmin, adminDeleteBlock);
 router.route("/block/saloon/create/:id").post(isAuthenticatedUser, isAdmin,adminAddSaloon);
+router.route("/block/:blockId/saloon/:saloonId").get(isAuthenticatedUser,isAdmin,adminGetSaloonById);
+router.route("/block/:blockId/saloon/delete/:saloonId").delete(isAuthenticatedUser,isAdmin,adminDeleteSaloonById);
 
 //admin QR code routes
 router.route("/checkqr").post(isAuthenticatedUser, isAdmin,isCheckingQr);

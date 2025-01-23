@@ -14,7 +14,7 @@ import adminRoute from "./routes/adminRoute.js";
 import blockRoute from "./routes/blockRoute.js";
 import swagger from "./configs/swagger.js";
 import cron from "node-cron";
-import { autoCancelLockerReservation, autoCheckReservation, autoCheckSuspendedUsers } from "./utils/autoCheckerFunctions.js";
+import { autoCancelLockerReservation, autoCheckReservation, autoCheckSuspendedUsers, autoEndReservation } from "./utils/autoCheckerFunctions.js";
 import errorMiddleware from "./middlewares/errors.js";
 import { configDotenv } from "dotenv";
 
@@ -45,8 +45,9 @@ app.use(errorMiddleware);
 
 // schedule tasks to be run on the server
 cron.schedule('0 0 * * *', autoCancelLockerReservation); // every day at 00:00
-cron.schedule('0 0 * * *', autoCheckReservation); // every day at 00:00
-cron.schedule('0 0 * * *', autoCheckSuspendedUsers); // every day at 00:00
+cron.schedule('* * * * *', autoCheckReservation); // every day at 00:00
+cron.schedule('* * * * *', autoCheckSuspendedUsers); // every day at 00:00
+cron.schedule('* * * * *', autoEndReservation); // every day at 00:00
 
 const port = globalConfig.port || 5000;
 const server = app.listen(port, () => {

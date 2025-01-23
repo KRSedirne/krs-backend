@@ -3,6 +3,7 @@ import ErrorHandler from "./errorHandler.js";
 import catchAsyncErrors from "../middlewares/catchAsyncErrors.js";
 import Reservation from "../models/reservation.js";
 import Suspended from "../models/suspended.js";
+import Seat from "../models/seat.js";
 
 // Check locker reservations and suspend the users if they didn't return the locker key on time
 export const autoCancelLockerReservation = catchAsyncErrors(async () => {
@@ -43,21 +44,29 @@ export const autoEndReservation = catchAsyncErrors(async () => {
         reservations.forEach(async (reservation) => {
             if (now > reservation.expireTime) {
                 if (reservation.isCheckIn) {
-                    reservation.deleteOne();
-                    return res.status(200).json({ message: "Reservation ended." }); // check this response on frontend
+                    const seat = await Seat.findById(reservation.seat);
+                    if (seat) {
+                        seat.isBooked = false;
+                        console.log("autoendReservation Seat updated:", seat);
+                        await seat.save();
+                    }
+                    await reservation.deleteOne();
+                    console.log("Reservation ended successfully.");
                 }
-                if (!reservation.isCheckIn) {
+                else {
                     const suspendedUser = await Suspended.findOne({ user: reservation.user, type: "reservation" });
                     if (!suspendedUser) {
                         const data = {
                             user: reservation.user,
                             type: "reservation",
                             description: "User didn't check-in on time. Suspended for a 2 week.",
-                            expireTime: (now.getTime() + (7 * 24 * 60 * 60 * 1000))
+                            expireTime: new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000),
                         }
+                        console.log("autoendResercation Data:",data);
                         await Suspended.create(data);
                     }
-
+                    await reservation.deleteOne();
+                    console.log("Reservation deleted and user suspended.");
                 }
             }
         });
@@ -74,16 +83,29 @@ export const autoCheckReservation = catchAsyncErrors(async () => {
 
         reservations.forEach(async (reservation) => {
 
-            if (now > reservation.reservationDate) {
-                const data = {
-                    user: reservation.user,
-                    type: "reservation",
-                    description: "User didn't check-in on time. Suspended for a 2 week.",
-                    expireTime: (now.getTime() + (14 * 24 * 60 * 60 * 1000))
-                }
-                await Suspended.create(data);
-            }
+            const reservationDeadline = new Date(reservation.createdAt.getTime() + 15 * 60 * 1000);
 
+            if (now > reservationDeadline) {
+                const seat = await Seat.findById(reservation.seat);
+
+                if (seat) {
+                    seat.isBooked = false; 
+                    await seat.save();
+                }
+
+                const suspendedUser = await Suspended.findOne({ user: reservation.user, type: "reservation" });
+                if (!suspendedUser) {
+                    const data = {
+                        user: reservation.user,
+                        type: "reservation",
+                        description: "User didn't check-in within 15 minutes. Suspended for 2 weeks.",
+                        expireTime: new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000),
+                    };
+                    await Suspended.create(data); 
+                }
+                await reservation.deleteOne();
+                console.log(`Reservation ${reservation._id} was not checked in and has been removed.`);
+            }
         });
     } catch (error) {
         return next(new ErrorHandler("Reservation couldn't be checked-in automaticly.", 500));

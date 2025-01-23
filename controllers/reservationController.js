@@ -2,7 +2,7 @@ import Reservation from '../models/reservation.js';
 import ErrorHandler from "../utils/errorHandler.js";
 import catchAsyncErrors from "../middlewares/catchAsyncErrors.js";
 import Suspended from '../models/suspended.js';
-import { checkUserBreakExpireTime } from '../utils/checkUserBreakExpireTime.js';
+import { checkUserBreakExpireTime } from '../utils/autoCheckerFunctions.js';
 import { generateQr } from '../utils/qrCodeGenerator.js';
 import Seat from '../models/seat.js';
 
@@ -41,44 +41,42 @@ export const getReservationDetails = catchAsyncErrors(async (req, res, next) => 
 export const createReservation = catchAsyncErrors(async (req, res, next) => {
     try {
 
-        req.body.user = req?.user?.id;
-
-        // user birden fazla reservation yapamaz, kontrol et
-        const isUserExist = await Reservation.findOne({ user: req?.body.user });
-
-        if (isUserExist) {
-            return next(new ErrorHandler(`This user already has one reservation`, 409));
-        }
-
-        const isUserSuspended = await Suspended.findOne({ user: req?.body.user });
+        const user = req?.user?._id;
+        const isUserSuspended = await Suspended.findOne({ user: user, type: "reservation" });
+        const seat = await Seat.findById(req?.body?.seat);
 
         if (isUserSuspended) {
             return next(new ErrorHandler(`This user is suspended`, 401));
         }
 
-        const isReservationExist = await Reservation.findOne({ reservationDate: req?.body.reservationDate, seat: req?.body.seat });
+        const isUserReservation = await Reservation.findOne({ user: user, expireTime: { $gt: new Date() } });
 
-        // Check if there is any usable version like that
-        // if (isReservationExist.seat.booked) {
-        //     return next(new ErrorHandler("Reservation already exist", 409));
-        // }
+        if (isUserReservation) {
+            return next(new ErrorHandler("User already have a reservation", 409));
+        }
+
+        const isReservationExist = await Reservation.findOne({ seat: req?.body?.seat, expireTime: { $gt: new Date() } });
 
         if (isReservationExist) {
-            return next(new ErrorHandler("Reservation already exist", 409));
+            return next(new ErrorHandler("This seat already reserved", 409));
         }
 
         const reservation = {
             ...req?.body,
+            user: user,
             reservationDate: new Date().getTime(),
-            qrCode: await generateQr(req?.body?.user),
+            qrCode: await generateQr(user),
             expireTime: new Date(new Date().getTime() + 90 * 60 * 1000)
         }
+
+        seat.isBooked = true;
+        await seat.save();
 
         const response = await Reservation.create(reservation);
         return res.status(201).json({ response, message: "Reservation created successfully" });
 
     } catch (error) {
-        return next(new ErrorHandler("Reservation couldn't create, something is gone wrong...", 500));
+        return next(new ErrorHandler(`Reservation couldn't create, something is gone wrong... ${error.message}`, 500));
     }
 });
 
@@ -220,7 +218,7 @@ export const getQRCode = catchAsyncErrors(async (req, res, next) => {
             return next(new ErrorHandler("Reservation expired", 400));
         }
 
-        return res.status(200).json({ qrCode: response?.qrCode });
+        return res.status(200).json({ qrCode: response?.qrCode , expireTime: response?.expireTime });
 
     } catch (error) {
         console.log(error);
@@ -257,20 +255,22 @@ export const getCurrentUserReservation = catchAsyncErrors(async (req, res, next)
         const reservation = await Reservation.findOne({ user: user });
         const seat = await Seat.findById(reservation?.seat);
 
-        if (!seat) {
-            return next(new ErrorHandler("Seat not found", 404));
-        }
-
         if (!reservation) {
             return res.status(200).json({ message: "User doesn't have any reservation" });
+        }
+        
+        if (!seat) {
+            return next(new ErrorHandler("Seat not found", 404));
         }
 
         if (reservation.expireTime < new Date()) {
             return next(new ErrorHandler(`Reservation expired`, 400));
         }
 
-        const reservationDate = reservation.reservationDate.toDateString() + " " + reservation.reservationDate.toLocaleTimeString();
-        const expireTime = reservation.expireTime.toDateString() + " " + reservation.expireTime.toLocaleTimeString();
+        let reservationDate = reservation.reservationDate.toDateString() + " " + reservation.reservationDate.toLocaleTimeString('tr-TR', { timeZone: 'Europe/Istanbul', });
+        let expireTime = reservation.expireTime.toDateString() + " " + reservation.expireTime.toLocaleTimeString();
+        reservationDate = moment(reservationDate).format('dddd, D MMMM YYYY HH:mm:ss')
+        expireTime = moment(expireTime).format('dddd, D MMMM YYYY HH:mm:ss')
 
         const response = {
             id: reservation._id,
@@ -284,8 +284,6 @@ export const getCurrentUserReservation = catchAsyncErrors(async (req, res, next)
             block: seat.block,
             saloon: seat.saloonName
         }
-
-
 
         return res.status(200).json({ response });
     } catch (error) {

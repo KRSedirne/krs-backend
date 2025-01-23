@@ -3,6 +3,7 @@ import ErrorHandler from "../../utils/errorHandler.js";
 import catchAsyncErrors from "../../middlewares/catchAsyncErrors.js";
 import { sendImageToPython} from "../../utils/imageAnalizer.js";
 import cloudinary from "../../configs/cloudinaryConfig.js";
+import Seat from "../../models/seat.js";
 
 // Admin get all blocks
 export const adminGetAllBlocks = catchAsyncErrors(async (req, res, next) => {
@@ -72,7 +73,7 @@ export const adminDeleteBlock = catchAsyncErrors(async (req, res, next) => {
         if (!block) {
             return next(new ErrorHandler("Block not found with this ID", 404));
         }
-
+        await Seat.deleteMany({block:block._id});
         await block.deleteOne();
 
         return res.status(204).json({ message: "Block deleted successfully" });
@@ -176,4 +177,56 @@ export const AdminGetSaloon = catchAsyncErrors(async (req, res, next) => {
     }
 });
 
+export const adminGetSaloonById = catchAsyncErrors(async (req, res, next) => {
+    try {
+        const blockId = req.params.blockId;
+        const saloonId = req.params.saloonId;
+
+        const block = await Block.findById(blockId);
+
+        if (!block) {
+            return next(new ErrorHandler("Block not found", 404));
+        }
+
+        const saloon = block.saloon.find((s) => s._id.toString() === saloonId);
+
+        if (!saloon) {
+            return res.status(404).json({ message: "Saloon not found in this block" });
+        }
+
+        return res.status(200).json({ block,saloon });
+    } catch (error) {
+        console.error(error);
+        return next(new ErrorHandler("Cannot find saloon", 500));
+    }
+});
+
+export const adminDeleteSaloonById = catchAsyncErrors(async (req, res, next) => {
+    try {
+        const blockId = req.params.blockId;
+        const saloonId = req.params.saloonId;
+
+        const block = await Block.findById(blockId);
+
+        if (!block) {
+            return next(new ErrorHandler("Block not found", 404));
+        }
+
+        const saloon = block.saloon.find((s) => s._id.toString() === saloonId);
+
+        if (!saloon) {
+            return res.status(404).json({ message: "Saloon not found." });
+        }
+
+        await Seat.deleteMany({ saloonName: saloon.saloonName, block: block._id });
+
+        block.saloon = block.saloon.filter((s) => s._id.toString() !== saloonId);
+        await block.save();
+
+        return res.status(200).json({ message: "Saloon and seats deleted successfully" });
+    } catch (error) {
+        console.error(error);
+        return next(new ErrorHandler("Can not delete saloon", 500));
+    }
+});
 
