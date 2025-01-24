@@ -7,6 +7,6 @@ const router = express.Router();
 router.route("/lockers").get(isAuthenticatedUser, getAllLockers);
 router.route("/locker/:id").get(isAuthenticatedUser, getLockerDetails);
 router.route("/locker/reservation/:id").put(isAuthenticatedUser, reserveLocker);
-router.route("/locker/reservation/current").put(isAuthenticatedUser, getCurrentUserLocker);
+router.route("/locker/reservation/current").get(isAuthenticatedUser, getCurrentUserLocker);
 
 export default router;

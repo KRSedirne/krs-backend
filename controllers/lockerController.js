@@ -2,6 +2,7 @@ import Locker from "../models/locker.js";
 import Suspended from "../models/suspended.js";
 import ErrorHandler from "../utils/errorHandler.js";
 import catchAsyncErrors from "../middlewares/catchAsyncErrors.js";
+import { convertTime } from "../utils/time.js";
 
 //listing all lockers
 export const getAllLockers = catchAsyncErrors(async (req, res, next) => {
@@ -75,9 +76,11 @@ export const getCurrentUserLocker = catchAsyncErrors(async (req, res, next) => {
 
         if (response.isBooked && (response.updatedAt < new Date(new Date().getTime()))) {
 
-            const reservationDate = convertTime(new Date(response.updatedAt), "tr", "DD MMMM YYYY, HH:mm:ss");
-            const expireDate = convertTime(new Date(response.updatedAt + 5 * 24 * 60 * 60 * 1000), "tr", "DD MMMM YYYY, HH:mm:ss");
+            let expireDate = new Date(new Date().getTime() + 5 * 24 * 60 * 60 * 1000)
 
+            const reservationDate = convertTime(new Date(response.updatedAt), "tr", "DD MMMM YYYY, HH:mm:ss");
+            expireDate = convertTime(new Date(expireDate), "tr", "DD MMMM YYYY, HH:mm:ss");
+            
             const locker = {
                 lockerNumber: response.lockerNumber,
                 user: response.user,

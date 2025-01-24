@@ -2,6 +2,7 @@ import Suspended from "../../models/suspended.js";
 import ErrorHandler from "../../utils/errorHandler.js";
 import catchAsyncErrors from "../../middlewares/catchAsyncErrors.js";
 import User from "../../models/user.js";
+import { convertTime } from "../../utils/time.js";
 
 // Admin Get all suspendeds
 export const adminGetAllSuspendeds = catchAsyncErrors(async (req, res, next) => {
@@ -17,13 +18,14 @@ export const adminGetAllSuspendeds = catchAsyncErrors(async (req, res, next) => 
         let data = {};
         for (let suspended of suspendeds) {
             user = await User.findById(suspended?.user);
+            const expireDate = convertTime(new Date(suspended?.expireTime), "tr", "DD MMMM YYYY, HH:mm:ss");
             data = {
                 id: suspended?._id,
                 name: user?.name,
                 lastname: user?.lastname,
                 type: suspended?.type,
                 description: suspended?.description,
-                expireTime: suspended?.expireTime
+                expireTime: expireDate
             }
             response.push(data);
         }

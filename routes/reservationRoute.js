@@ -1,5 +1,5 @@
 import express from 'express';
-import { getAllReservations, getReservationDetails, createReservation, updateReservation, deleteReservation, cancelReservation, getReservationExpireTime, addOutReason, getQRCode, remainReservation, getCurrentUserReservation } from '../controllers/reservationController.js';
+import { getAllReservations, getReservationDetails, createReservation, updateReservation, cancelReservation, getReservationExpireTime, addOutReason, getQRCode, remainReservation, getCurrentUserReservation } from '../controllers/reservationController.js';
 import { isAuthenticatedUser } from "../middlewares/authMiddleware.js";
 
 const router = express.Router();
