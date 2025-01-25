@@ -33,7 +33,10 @@ import Seat from '../models/seat.js';
 // });
 
 const storage = multer.memoryStorage();
-export const upload = multer({ storage });
+export const upload = multer({storage: storage,
+    limits: {
+        fileSize: 50 * 1024 * 1024  // Maksimum dosya boyutu 50MB
+    }, });
 
 export const sendImageToPython = async (lastSaloon,block,res) => {
     try {

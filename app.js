@@ -17,6 +17,7 @@ import cron from "node-cron";
 import { autoCancelLockerReservation, autoCheckReservation, autoCheckSuspendedUsers, autoEndReservation } from "./utils/autoCheckerFunctions.js";
 import errorMiddleware from "./middlewares/errors.js";
 import { configDotenv } from "dotenv";
+import bodyParser from "body-parser";
 
 
 const app = express();
@@ -29,6 +30,8 @@ app.use(cors())
 app.use(express.json())
 app.use(morgan("dev"));
 app.use(cookieParser());
+app.use(bodyParser.json({ limit: '10mb' }));
+app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
 
 // Use all routes
 app.use("/api/v1", seatRoutes);
